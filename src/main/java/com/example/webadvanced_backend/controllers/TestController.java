@@ -31,4 +31,9 @@ public class TestController {
         return accountRepository.findAll();
     }
 
+    @GetMapping(path = "/redeploy")
+    public String getData() {
+        return "Redeploy";
+    }
+
 }
