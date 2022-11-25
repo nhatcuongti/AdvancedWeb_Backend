@@ -23,4 +23,7 @@ public class Account {
 
     @Column(name = "facebook_id")
     private String facebookId;
+
+    @OneToOne(mappedBy = "accountInfo")
+    private UserInfo userInfo;
 }
