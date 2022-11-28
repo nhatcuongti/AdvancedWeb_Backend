@@ -19,11 +19,6 @@ public class GroupInfo {
     @Column(name = "group_name")
     private String groupName;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name="user_group",
-            joinColumns = @JoinColumn(name="group_id"),
-            inverseJoinColumns = @JoinColumn(name="user_id")
-    )
-    private Collection<UserInfo> listUsers;
+    @OneToMany(mappedBy = "group")
+    private Collection<UserGroup> listUserGroup;
 }
