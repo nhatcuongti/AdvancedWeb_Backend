@@ -13,4 +13,6 @@ public class AccountDTO {
     private String password;
     private String emailAddress;
     private String facebookId;
+    private String image;
+    private String fullName;
 }

@@ -26,7 +26,12 @@ import java.util.Map;
 
 
 @RestController
+<<<<<<< HEAD
 @RequestMapping(path = "/")
+=======
+@RequestMapping(path="/api")
+@CrossOrigin
+>>>>>>> mid-term
 public class TestController {
 
     @Autowired

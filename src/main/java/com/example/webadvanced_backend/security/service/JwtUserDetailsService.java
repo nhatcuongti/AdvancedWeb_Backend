@@ -1,10 +1,9 @@
-package com.example.webadvanced_backend.security;
+package com.example.webadvanced_backend.security.service;
 
 import com.example.webadvanced_backend.models.Account;
 import com.example.webadvanced_backend.models.AccountDTO;
 import com.example.webadvanced_backend.repositories.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,6 +19,7 @@ public class JwtUserDetailsService implements UserDetailsService {
 
     @Autowired
     private AccountRepository accountRepository;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Account user = accountRepository.findByUsername(username);
@@ -32,11 +32,16 @@ public class JwtUserDetailsService implements UserDetailsService {
     }
 
     public Account save(AccountDTO user) {
-        Account newUser = new Account();
-        newUser.setUsername(user.getUsername());
-        newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
-//        return null;
-        return accountRepository.save(newUser);
+        Account newAccount = Account.builder()
+                        .username(user.getUsername())
+                        .password(bcryptEncoder.encode(user.getPassword()))
+                        .image(user.getImage())
+                        .facebookId(user.getFacebookId())
+                        .fullName(user.getFullName())
+                        .emailAddress(user.getEmailAddress())
+                        .build();
+
+        return accountRepository.save(newAccount);
     }
 
 

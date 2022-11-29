@@ -1,4 +1,4 @@
-package com.example.webadvanced_backend.security;
+package com.example.webadvanced_backend.security.models;
 
 import java.io.Serializable;
 
