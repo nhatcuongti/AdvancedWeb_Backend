@@ -109,9 +109,11 @@ public class JwtAuthenticationController {
     public void getGoogleAccessToken(@RequestParam String code) throws JsonProcessingException {
         // return object containing properties about token
         ResponseGoogleToken response = getAuthenTokenGoogle(code);
-        System.out.println("response");
+        System.out.println(response.getId_token());
 
         // redirect and send token to client
+        // get info from below api
+        // https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=
     }
 
     // exchange authorization code to google token
