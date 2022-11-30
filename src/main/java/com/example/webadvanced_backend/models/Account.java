@@ -35,4 +35,6 @@ public class Account {
 
     @Column(name = "image")
     private String image;
+
+
 }

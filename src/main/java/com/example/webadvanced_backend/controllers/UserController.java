@@ -23,9 +23,7 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     @GetMapping(path = "/user")
-    public ResponseEntity<?> getUser(
-            HttpServletRequest httpServletRequest
-    ) {
+    public ResponseEntity<?> getUser(HttpServletRequest httpServletRequest) {
         try {
             String username = httpServletRequest.getHeader("username");
             return ResponseEntity.ok(this.accountRepository.findByUsername(username));
