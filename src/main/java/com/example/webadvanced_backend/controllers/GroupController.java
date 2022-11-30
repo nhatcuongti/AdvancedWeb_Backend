@@ -77,7 +77,7 @@ public class GroupController {
         }
     }
 
-    @GetMapping(path = "/link/{groupId}")
+    @GetMapping(path = "/link/{groupId}") // Tạo link để mời.
     public ResponseEntity<?> retrieveInviteLink(
             HttpServletRequest httpServletRequest,
             @PathVariable Integer groupId
@@ -100,7 +100,7 @@ public class GroupController {
         }
     }
 
-    @GetMapping(path = "/invite/{groupId}")
+    @GetMapping(path = "/invite/{groupId}") // Dùng để mời user
     public ResponseEntity<?> inviteMemberToLink(
             HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse,
