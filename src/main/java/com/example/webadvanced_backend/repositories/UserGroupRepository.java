@@ -14,4 +14,6 @@ public interface UserGroupRepository extends JpaRepository<UserGroup, Integer> {
     List<UserGroup> findByUser(Account user);
     List<UserGroup> findByGroup(GroupInfo groupInfo);
 
+    UserGroup findByUserAndGroup(Account user, GroupInfo groupInfo);
+
 }

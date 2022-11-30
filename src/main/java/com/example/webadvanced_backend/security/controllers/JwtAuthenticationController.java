@@ -11,6 +11,8 @@ import com.example.webadvanced_backend.security.service.JwtUserDetailsService;
 import com.example.webadvanced_backend.services.EmailSenderService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,13 +23,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/auth")
@@ -131,15 +136,47 @@ public class JwtAuthenticationController {
     // get authorization code from google response
     @ResponseBody
     @GetMapping(path = "/oauth2/code/callback")
-    public void getGoogleAccessToken(@RequestParam String code) throws JsonProcessingException {
+    public void getGoogleAccessToken(@RequestParam String code,
+                                     HttpServletResponse httpServletResponse) throws JsonProcessingException {
         // return object containing properties about token
-        ResponseGoogleToken response = getAuthenTokenGoogle(code);
-        System.out.println(response.getId_token());
+        try{
+            ResponseGoogleToken response = getAuthenTokenGoogle(code);
+            System.out.println(response.getId_token());
+            String emailAddress = getAuthUserInfor(response.getId_token());
+            Account account = accountRepository.findByEmailAddress(emailAddress);
+            if (account == null) {
+                account.setUsername(UUID.randomUUID().toString());
+                account.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+                accountRepository.save(account);
+            }
 
-        // redirect and send token to client
-        // get info from below api
-        // https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=
+            final UserDetails userDetails = userDetailsService
+                    .loadUserByUsername(account.getUsername());
+            String urlRedirect = String.format("http://localhost:3000?access_token=%s&username=%s", jwtTokenUtil.generateToken(userDetails), account.getUsername());
+            httpServletResponse.sendRedirect(urlRedirect);
+        }catch (Exception e){
+
+        }
+
+//         https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=
+
+
     }
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    public String getAuthUserInfor(String idToken) throws Exception{
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        HttpEntity<String> request = new HttpEntity<String>(headers);
+        String access_token_url = String.format("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%s", idToken);
+        ResponseEntity<String> response = null;
+        response = restTemplate.exchange(access_token_url, HttpMethod.POST, request, String.class);
+        JSONObject jsonObject = (JSONObject) (new JSONParser()).parse(response.getBody());
+
+        return jsonObject.getAsString("email");
+    }
+
 
     // exchange authorization code to google token
     public ResponseGoogleToken getAuthenTokenGoogle(String code) throws JsonProcessingException {
