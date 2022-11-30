@@ -36,5 +36,6 @@ public class Account {
     @Column(name = "image")
     private String image;
 
-
+    @Column(name = "activate")
+    private Boolean activate = false;
 }

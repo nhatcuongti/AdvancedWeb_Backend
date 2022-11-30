@@ -1,13 +1,14 @@
 package com.example.webadvanced_backend.security.controllers;
 
-import com.example.webadvanced_backend.models.AccountDTO;
-import com.example.webadvanced_backend.models.ResponseGoogleToken;
+import com.example.webadvanced_backend.models.*;
 import com.example.webadvanced_backend.repositories.AccountRepository;
+import com.example.webadvanced_backend.repositories.UserGroupRepository;
 import com.example.webadvanced_backend.security.models.JwtRequest;
 import com.example.webadvanced_backend.security.models.JwtResponse;
 import com.example.webadvanced_backend.security.models.MessageResponse;
 import com.example.webadvanced_backend.security.service.JwtTokenUtil;
 import com.example.webadvanced_backend.security.service.JwtUserDetailsService;
+import com.example.webadvanced_backend.services.EmailSenderService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +18,16 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -39,6 +44,9 @@ public class JwtAuthenticationController {
 
     @Autowired
     private AccountRepository accountRepository;
+
+    @Autowired
+    private EmailSenderService emailSenderService;
 
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
@@ -65,17 +73,28 @@ public class JwtAuthenticationController {
         // Check email is exists or not
         if (accountRepository.existsByEmailAddress(account.getEmailAddress()))
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
-
+        Thread threadEmail = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                emailSenderService.sendEmail(account.getEmailAddress(), "Activated your account",
+                        "Hello, if you need to activate your account from my application, please click link : " +
+                                String.format("http://localhost:8080/api/user/activate/%s", account.getUsername()));
+            }
+        });
+        threadEmail.start();
         // Create user acconut
         return ResponseEntity.ok(userDetailsService.save(account));
     }
 
+    @Autowired
+    UserGroupRepository userGroupRepository;
     @PostMapping(value = "/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody AccountDTO account) throws Exception {
         // Authenticate user is valid or not
         String jwt = null;
         UserDetails userDetails = null;
         try {
+            List<UserGroup> listUserGroup = userGroupRepository.findAll();
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(account.getUsername(), account.getPassword()));
 
@@ -83,9 +102,15 @@ public class JwtAuthenticationController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             userDetails = (UserDetails) authentication.getPrincipal();
 
+            Account loginAccount = accountRepository.findByUsername(account.getUsername());
+            if (null == loginAccount.getActivate()) throw new Exception("Account is not activate");
+
             jwt = jwtTokenUtil.generateToken(userDetails);
         } catch (Exception e) {
-            return ResponseEntity.ok("Errors : Username or password is incorrect");
+            String errorMsg = "Account is not activate !!";
+            if (e instanceof AuthenticationException)
+                errorMsg = "Username or password is not correct !!";
+            return ResponseEntity.status(401).body(errorMsg);
         }
 
         return ResponseEntity.ok(
@@ -132,6 +157,45 @@ public class JwtAuthenticationController {
         response = restTemplate.exchange(access_token_url, HttpMethod.POST, request, String.class);
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.readValue(response.getBody(), ResponseGoogleToken.class);
+    }
+
+    @GetMapping(path = "/activate/{username}")
+    public void activateAccount(
+            HttpServletRequest httpServletRequest,
+            HttpServletResponse httpServletResponse,
+            @PathVariable String username
+    ) {
+        try {
+            Account activatedAccount = accountRepository.findByUsername(username);
+            activatedAccount.setActivate(true);
+            accountRepository.save(activatedAccount);
+            httpServletResponse.sendRedirect("http://localhost:3000/login");
+        } catch (Exception e ) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @GetMapping(path = "/resend/activate/{username}")
+    public ResponseEntity<?> resendActivateAccount(
+            HttpServletRequest httpServletRequest,
+            @PathVariable String username
+    ) {
+        try {
+            Account account = accountRepository.findByUsername(username);
+            Thread threadEmail = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    emailSenderService.sendEmail(account.getEmailAddress(), "Activated your account",
+                            "Hello, if you need to activate your account from my application, please click link : " +
+                                    String.format("http://localhost:8080/api/user/activate/%s", account.getUsername()));
+                }
+            });
+            threadEmail.start();
+
+            return ResponseEntity.ok("OK");
+        } catch (Exception e ) {
+            return ResponseEntity.ok(e.getMessage());
+        }
     }
 
 }

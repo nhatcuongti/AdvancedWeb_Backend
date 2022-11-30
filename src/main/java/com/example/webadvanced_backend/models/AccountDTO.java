@@ -15,4 +15,5 @@ public class AccountDTO {
     private String facebookId;
     private String image;
     private String fullName;
+    private Boolean activate;
 }
