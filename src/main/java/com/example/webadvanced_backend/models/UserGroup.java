@@ -1,9 +1,6 @@
 package com.example.webadvanced_backend.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -11,6 +8,7 @@ import java.util.Collection;
 @Entity
 @Table()
 @Data
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
