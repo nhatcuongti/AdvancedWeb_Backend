@@ -93,7 +93,7 @@ public class GroupController {
             UserGroup userGroup = userGroupRepository.findByUserAndGroup(account, groupInfo);
             if (userGroup == null) throw new Exception("User is not the member of this group");
             if (userGroup.getRoleUserInGroup() == RoleUserInGroup.ROLE_MEMBER) throw new Exception("User is not Owner / Co-owner of this group");
-            return ResponseEntity.ok(String.format("http://localhost:8080/api/group/invite/%s", groupId));
+            return ResponseEntity.ok(String.format("http://localhost:3000/invite/%s", groupId));
         }
         catch (Exception err){
             return ResponseEntity.internalServerError().body(err.getMessage());
@@ -123,7 +123,7 @@ public class GroupController {
             UserGroup userGroup = UserGroup.builder().roleUserInGroup(RoleUserInGroup.ROLE_MEMBER)
                     .user(account).group(groupInfo).build();
             userGroupRepository.save(userGroup);
-            httpServletResponse.sendRedirect(String.format("http://localhost:3000/group?id=%s", groupId));
+//            httpServletResponse.sendRedirect(String.format("http://localhost:3000/group?id=%s", groupId));
             return ResponseEntity.ok("OK");
         }
         catch (Exception err){
