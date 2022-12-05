@@ -1,19 +1,14 @@
 package com.example.webadvanced_backend.controllers;
 
 import com.example.webadvanced_backend.models.Account;
-import com.example.webadvanced_backend.models.AccountDTO;
-import com.example.webadvanced_backend.models.EditProfileRequest;
-import com.example.webadvanced_backend.models.UserGroup;
+import com.example.webadvanced_backend.requestBodyEntities.EditProfileRequest;
 import com.example.webadvanced_backend.repositories.AccountRepository;
-import com.example.webadvanced_backend.repositories.UserGroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(path="/api")

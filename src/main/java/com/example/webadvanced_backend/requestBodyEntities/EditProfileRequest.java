@@ -1,4 +1,4 @@
-package com.example.webadvanced_backend.models;
+package com.example.webadvanced_backend.requestBodyEntities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

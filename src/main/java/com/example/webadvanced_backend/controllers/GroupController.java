@@ -1,5 +1,6 @@
 package com.example.webadvanced_backend.controllers;
 
+import com.example.webadvanced_backend.requestBodyEntities.CreateGroupRequest;
 import com.example.webadvanced_backend.models.*;
 import com.example.webadvanced_backend.repositories.AccountRepository;
 import com.example.webadvanced_backend.repositories.GroupRepository;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.swing.*;
 import java.security.Principal;
 import java.util.List;
 
@@ -57,7 +57,7 @@ public class GroupController {
     }
 
     @PostMapping(path = "/2")
-    public ResponseEntity<?> createAGroup( @RequestBody CreateGroupRequest createGroupRequest, Principal principal){
+    public ResponseEntity<?> createAGroup(@RequestBody CreateGroupRequest createGroupRequest, Principal principal){
         try {
             GroupInfo groupInfo;
             UserGroup userGroup;
