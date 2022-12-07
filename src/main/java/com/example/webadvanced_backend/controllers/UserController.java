@@ -1,7 +1,7 @@
 package com.example.webadvanced_backend.controllers;
 
 import com.example.webadvanced_backend.models.Account;
-import com.example.webadvanced_backend.requestBodyEntities.EditProfileRequest;
+import com.example.webadvanced_backend.requestentities.EditProfileRequest;
 import com.example.webadvanced_backend.repositories.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

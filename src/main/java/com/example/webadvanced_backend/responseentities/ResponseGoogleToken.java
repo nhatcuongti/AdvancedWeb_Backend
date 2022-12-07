@@ -1,4 +1,4 @@
-package com.example.webadvanced_backend.models;
+package com.example.webadvanced_backend.responseentities;
 
 public class ResponseGoogleToken {
     private String access_token;

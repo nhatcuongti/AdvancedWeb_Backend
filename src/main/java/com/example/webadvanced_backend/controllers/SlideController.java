@@ -3,15 +3,17 @@ package com.example.webadvanced_backend.controllers;
 import com.example.webadvanced_backend.models.Content;
 import com.example.webadvanced_backend.models.ContentMultichoice;
 import com.example.webadvanced_backend.repositories.ContentMultichoiceRepository;
-import com.example.webadvanced_backend.requestBodyEntities.CreateSlideRequest;
+import com.example.webadvanced_backend.requestentities.CreateSlideRequest;
 import com.example.webadvanced_backend.models.Presentation;
 import com.example.webadvanced_backend.models.Slide;
 import com.example.webadvanced_backend.repositories.PresentationRepository;
 import com.example.webadvanced_backend.repositories.SlideRepository;
-import com.example.webadvanced_backend.requestBodyEntities.DeleteSlideRequest;
+import com.example.webadvanced_backend.requestentities.DeleteSlideRequest;
+import com.example.webadvanced_backend.requestentities.VoteMessageRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +30,10 @@ public class SlideController {
     SlideRepository slideRepository;
     @Autowired
     ContentMultichoiceRepository multichoiceRepository;
+    @Autowired
+    SimpMessagingTemplate simpMessagingTemplate;
+
+
 
     @ResponseBody
     @GetMapping()
@@ -75,6 +81,20 @@ public class SlideController {
             }
             // xoa cac slide
             return ResponseEntity.ok("cant not delete");
+        }
+        catch (Exception err){
+            return ResponseEntity.internalServerError().body(err.getMessage());
+        }
+    }
+    @PostMapping(path = "/4")
+    public ResponseEntity<?> test(@RequestBody VoteMessageRequest request, Principal principal){
+        try {
+
+            // xoa cac slide
+            List<ContentMultichoice> contentMultichoices = multichoiceRepository.findAll();
+            this.simpMessagingTemplate.convertAndSend("/topic/channel11", contentMultichoices);
+            return ResponseEntity.ok("cant not delete");
+
         }
         catch (Exception err){
             return ResponseEntity.internalServerError().body(err.getMessage());

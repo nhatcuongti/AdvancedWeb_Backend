@@ -1,9 +1,9 @@
 package com.example.webadvanced_backend.controllers;
 
 import com.example.webadvanced_backend.repositories.*;
-import com.example.webadvanced_backend.requestBodyEntities.CreatePresentationRequest;
+import com.example.webadvanced_backend.requestentities.CreatePresentationRequest;
 import com.example.webadvanced_backend.models.*;
-import com.example.webadvanced_backend.requestBodyEntities.DeletePresentationRequest;
+import com.example.webadvanced_backend.requestentities.DeletePresentationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

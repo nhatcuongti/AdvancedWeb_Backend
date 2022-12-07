@@ -1,5 +1,6 @@
-package com.example.webadvanced_backend.models;
+package com.example.webadvanced_backend.responseentities;
 
+import com.example.webadvanced_backend.models.UserGroup;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +12,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResponseListUserInGroup {
-    List<UserGroup> userGroupList;
-    UserGroup myAccountInGroup;
+public class ResponseVoteOfOption {
+    int optionId;
+    int vote;
 }

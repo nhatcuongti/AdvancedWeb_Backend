@@ -4,9 +4,10 @@ import com.example.webadvanced_backend.models.*;
 import com.example.webadvanced_backend.repositories.AccountRepository;
 import com.example.webadvanced_backend.repositories.GroupRepository;
 import com.example.webadvanced_backend.repositories.UserGroupRepository;
+import com.example.webadvanced_backend.requestentities.UpgradeRoleRequest;
+import com.example.webadvanced_backend.responseentities.ResponseListUserInGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;

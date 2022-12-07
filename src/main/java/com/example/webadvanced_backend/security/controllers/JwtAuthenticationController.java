@@ -3,6 +3,7 @@ package com.example.webadvanced_backend.security.controllers;
 import com.example.webadvanced_backend.models.*;
 import com.example.webadvanced_backend.repositories.AccountRepository;
 import com.example.webadvanced_backend.repositories.UserGroupRepository;
+import com.example.webadvanced_backend.responseentities.ResponseGoogleToken;
 import com.example.webadvanced_backend.security.models.JwtRequest;
 import com.example.webadvanced_backend.security.models.JwtResponse;
 import com.example.webadvanced_backend.security.models.MessageResponse;
@@ -30,8 +31,6 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController

@@ -1,4 +1,4 @@
-package com.example.webadvanced_backend.requestBodyEntities;
+package com.example.webadvanced_backend.requestentities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class DeleteSlideTypeRequest {
-    private int slideTypeId;
-    private int slideType;
+public class CreateGroupRequest {
+    private String groupName;
+    private String description;
 }
