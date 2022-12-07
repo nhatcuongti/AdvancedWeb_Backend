@@ -7,6 +7,8 @@ import com.example.webadvanced_backend.repositories.ContentMultichoiceRepository
 import com.example.webadvanced_backend.repositories.ContentRepository;
 import com.example.webadvanced_backend.requestentities.CreateMChoiceOptionRequest;
 import com.example.webadvanced_backend.requestentities.DeleteSlideTypeRequest;
+import com.example.webadvanced_backend.requestentities.EditOptionNameRequest;
+import com.example.webadvanced_backend.requestentities.EditSlideTitleRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -40,7 +42,7 @@ public class SlideTypeController {
         }
     }
 
-    @PostMapping(path = "/2")
+    @PostMapping(path = "/create-multiple-choice")
     public ResponseEntity<?> createAMChoiceOption(@RequestBody CreateMChoiceOptionRequest request, Principal principal) {
         try {
             Content content = contentRepository.findById(request.getContentId());
@@ -55,7 +57,35 @@ public class SlideTypeController {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
     }
-    @PostMapping(path = "/3")
+
+    @PostMapping(path = "/edit")
+    public ResponseEntity<?> editTitleSlide(@RequestBody EditSlideTitleRequest request) {
+        try {
+            Content content = contentRepository.findById(request.getContentId());
+            content.setTitle(request.getTitle());
+            return ResponseEntity.ok(contentRepository.save(content));
+        } catch (Exception err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
+        }
+    }
+
+    @PostMapping(path = "/edit-multiple-choice")
+    public ResponseEntity<?> editMultipleChoice(@RequestBody EditOptionNameRequest request, Principal principal){
+        try {
+            // tim list slide
+            if(request.getSlideType() == 1){
+                ContentMultichoice multichoice = multichoiceRepository.findById(request.getSlideTypeId());
+                COption option = multichoice.getOption();
+                option.setName(request.getOptionName());
+                return ResponseEntity.ok(multichoiceRepository.save(multichoice));
+            }
+            return ResponseEntity.ok("cant not delete");
+        }
+        catch (Exception err){
+            return ResponseEntity.internalServerError().body(err.getMessage());
+        }
+    }
+    @PostMapping(path = "/delete-multiple-choice")
     public ResponseEntity<?> deleteSlideType(@RequestBody DeleteSlideTypeRequest request, Principal principal){
         try {
             // tim list slide

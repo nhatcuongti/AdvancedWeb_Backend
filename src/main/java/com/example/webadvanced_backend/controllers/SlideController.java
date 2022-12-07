@@ -9,6 +9,7 @@ import com.example.webadvanced_backend.models.Slide;
 import com.example.webadvanced_backend.repositories.PresentationRepository;
 import com.example.webadvanced_backend.repositories.SlideRepository;
 import com.example.webadvanced_backend.requestentities.DeleteSlideRequest;
+import com.example.webadvanced_backend.requestentities.EditSlideTitleRequest;
 import com.example.webadvanced_backend.requestentities.VoteMessageRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin
 @Controller
@@ -51,7 +53,18 @@ public class SlideController {
         }
     }
 
-    @PostMapping(path = "/2")
+    @ResponseBody
+    @GetMapping("/{slideId}")
+    ResponseEntity<?> getSlideDetail(Principal principal, @PathVariable int slideId) {
+        try {
+            Slide slide = slideRepository.findById(slideId);
+            return ResponseEntity.ok(slide);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e);
+        }
+    }
+
+    @PostMapping(path = "/add")
     public ResponseEntity<?> createASlide(@RequestBody CreateSlideRequest request, Principal principal) {
         try {
             Presentation presentation = presentationRepository.findById(request.getPreId());
@@ -67,7 +80,21 @@ public class SlideController {
 
     }
 
-    @PostMapping(path = "/3")
+    @PostMapping(path = "/edit/{id}")
+    public ResponseEntity<?> editSlideTitle(@RequestBody EditSlideTitleRequest request, @PathVariable String id) {
+        try {
+            Optional<Slide> optional = slideRepository.findById(Integer.valueOf(id));
+            Slide slide = optional.get();
+
+
+            return ResponseEntity.ok(slideRepository.save(slide));
+        } catch (Exception err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
+        }
+
+    }
+
+    @PostMapping(path = "/delete")
     public ResponseEntity<?> deleteSlide(@RequestBody DeleteSlideRequest request, Principal principal){
         try {
             // tim list slide
@@ -86,6 +113,8 @@ public class SlideController {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
     }
+
+
     @PostMapping(path = "/4")
     public ResponseEntity<?> test(@RequestBody VoteMessageRequest request, Principal principal){
         try {

@@ -25,7 +25,7 @@ public class VoteController {
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
 
-    @PostMapping(path = "/1")
+    @PostMapping(path = "")
     ResponseEntity<?> voteOption(@RequestBody VoteMessageRequest request) {
         try {
             Slide slide = slideRepository.findById(request.getSlideId());

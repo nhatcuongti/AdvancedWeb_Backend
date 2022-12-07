@@ -4,14 +4,17 @@ import com.example.webadvanced_backend.repositories.*;
 import com.example.webadvanced_backend.requestentities.CreatePresentationRequest;
 import com.example.webadvanced_backend.models.*;
 import com.example.webadvanced_backend.requestentities.DeletePresentationRequest;
+import com.example.webadvanced_backend.requestentities.EditPresentationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin
 @Controller
@@ -39,7 +42,7 @@ public class PresentationController {
             return ResponseEntity.internalServerError().body(e);
         }
     }
-    @PostMapping(path = "/2")
+    @PostMapping(path = "/add")
     public ResponseEntity<?> createAPresentation(@RequestBody CreatePresentationRequest request, Principal principal){
         try {
             Presentation presentation;
@@ -52,7 +55,8 @@ public class PresentationController {
         }
     }
 
-    @PostMapping(path = "/3")
+
+    @PostMapping(path = "/delete")
     public ResponseEntity<?> deletePresentation(@RequestBody DeletePresentationRequest request, Principal principal){
         try {
             Presentation presentation = presentationRepository.findById(request.getPreId());
