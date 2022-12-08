@@ -15,7 +15,7 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping(path ="/api/group")
+@RequestMapping(path = "/api/group")
 @CrossOrigin
 public class GroupController {
     @Autowired
@@ -24,40 +24,38 @@ public class GroupController {
     private AccountRepository accountRepository;
     @Autowired
     private GroupRepository groupRepository;
-    @GetMapping(path ="/1")
-    public ResponseEntity<?> getMyGroup( Principal principal){
-        try{
+
+    @GetMapping(path = "/1")
+    public ResponseEntity<?> getMyGroup(Principal principal) {
+        try {
             Account account = accountRepository.findByUsername(principal.getName());
             List<UserGroup> list = userGroupRepository.findByUser(account);
             return ResponseEntity.ok(list);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
-    @GetMapping(path ="/list")
-    public ResponseEntity<?> getListGroup( Principal principal){
-        try{
+    @GetMapping(path = "/list")
+    public ResponseEntity<?> getListGroup(Principal principal) {
+        try {
             return ResponseEntity.ok(groupRepository.findAll());
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
-    @GetMapping(path ="/user-group/list")
-    public ResponseEntity<?> getUserGroupList( Principal principal){
-        try{
+    @GetMapping(path = "/user-group/list")
+    public ResponseEntity<?> getUserGroupList(Principal principal) {
+        try {
             return ResponseEntity.ok(userGroupRepository.findAll());
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
     @PostMapping(path = "/2")
-    public ResponseEntity<?> createAGroup(@RequestBody CreateGroupRequest createGroupRequest, Principal principal){
+    public ResponseEntity<?> createAGroup(@RequestBody CreateGroupRequest createGroupRequest, Principal principal) {
         try {
             GroupInfo groupInfo;
             UserGroup userGroup;
@@ -71,8 +69,7 @@ public class GroupController {
             UserGroup userGroup1 = userGroupRepository.save(userGroup);
 
             return ResponseEntity.ok(userGroup1);
-        }
-        catch (Exception err){
+        } catch (Exception err) {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
     }
@@ -81,7 +78,7 @@ public class GroupController {
     public ResponseEntity<?> retrieveInviteLink(
             HttpServletRequest httpServletRequest,
             @PathVariable Integer groupId
-    ){
+    ) {
         try {
             String username = httpServletRequest.getHeader("username");
 
@@ -92,10 +89,10 @@ public class GroupController {
             // Check username is owner or not
             UserGroup userGroup = userGroupRepository.findByUserAndGroup(account, groupInfo);
             if (userGroup == null) throw new Exception("User is not the member of this group");
-            if (userGroup.getRoleUserInGroup() == RoleUserInGroup.ROLE_MEMBER) throw new Exception("User is not Owner / Co-owner of this group");
+            if (userGroup.getRoleUserInGroup() == RoleUserInGroup.ROLE_MEMBER)
+                throw new Exception("User is not Owner / Co-owner of this group");
             return ResponseEntity.ok(String.format("http://localhost:3000/invite/%s", groupId));
-        }
-        catch (Exception err){
+        } catch (Exception err) {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
     }
@@ -105,13 +102,13 @@ public class GroupController {
             HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse,
             @PathVariable Integer groupId
-    ){
+    ) {
         try {
             String username = httpServletRequest.getHeader("username");
             if (username == null) {
                 httpServletResponse.sendRedirect(
                         String.format("http://localhost:3000/login?redirect_url=http://localhost:8080/api/group/invite/%s", groupId)
-                        );
+                );
                 return null;
             }
 
@@ -125,8 +122,7 @@ public class GroupController {
             userGroupRepository.save(userGroup);
 //            httpServletResponse.sendRedirect(String.format("http://localhost:3000/group?id=%s", groupId));
             return ResponseEntity.ok("OK");
-        }
-        catch (Exception err){
+        } catch (Exception err) {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
     }
