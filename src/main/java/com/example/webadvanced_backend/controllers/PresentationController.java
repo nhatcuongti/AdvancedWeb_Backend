@@ -5,6 +5,7 @@ import com.example.webadvanced_backend.requestentities.CreatePresentationRequest
 import com.example.webadvanced_backend.models.*;
 import com.example.webadvanced_backend.requestentities.DeletePresentationRequest;
 import com.example.webadvanced_backend.requestentities.EditPresentationRequest;
+import com.example.webadvanced_backend.requestentities.EditSlideTitleRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -53,6 +54,18 @@ public class PresentationController {
         catch (Exception err){
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
+    }
+
+    @PostMapping(path = "/edit/{id}")
+    public ResponseEntity<?> editPresentationName(@RequestBody EditPresentationRequest request, @PathVariable String id) {
+        try {
+            Optional<Presentation> presentation = presentationRepository.findById(Integer.valueOf(id));
+            presentation.get().setName(request.getPresentationName());
+            return ResponseEntity.ok(slideRepository.save(presentationRepository.save(presentation.get());));
+        } catch (Exception err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
+        }
+
     }
 
 
