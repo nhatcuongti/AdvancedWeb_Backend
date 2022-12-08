@@ -61,7 +61,7 @@ public class PresentationController {
         try {
             Optional<Presentation> presentation = presentationRepository.findById(Integer.valueOf(id));
             presentation.get().setName(request.getPresentationName());
-            return ResponseEntity.ok(slideRepository.save(presentationRepository.save(presentation.get());));
+            return ResponseEntity.ok(presentationRepository.save(presentation.get()));
         } catch (Exception err) {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
