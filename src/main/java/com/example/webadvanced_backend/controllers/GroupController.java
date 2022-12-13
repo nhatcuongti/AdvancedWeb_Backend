@@ -77,6 +77,7 @@ public class GroupController {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
     }
+
     // k xai
     @GetMapping(path = "/link/{groupId}") // Tạo link để mời.
     public ResponseEntity<?> retrieveInviteLink(
@@ -139,23 +140,25 @@ public class GroupController {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
     }
-        @GetMapping(path = "/send-inviting-mail") // Tạo link để mời.
-        @ResponseBody
-        public ResponseEntity<?> sendInvitingMail(@RequestParam Integer groupId, @RequestParam String email) {
-            try {
-               Thread threadEmail = new Thread(new Runnable() {
-                   @Override
-                            public void run() {
-                                emailSenderService.sendEmail(email, "Inviting mail",
-                                        "Hello, we would like to invite you to join our group, please click link : " +
-                                                String.format(UrlUltils.getClientUrl() + "/invite/%s", groupId.toString()));
-                            }
-                        });
-                        threadEmail.start();
-                return ResponseEntity.ok("send mail successfully");
-            } catch (Exception err) {
-                return ResponseEntity.internalServerError().body(err.getMessage());
-            }
+
+    @GetMapping(path = "/send-inviting-mail") // Tạo link để mời.
+    @ResponseBody
+    public ResponseEntity<?> sendInvitingMail(@RequestParam Integer groupId, @RequestParam String email) {
+        try {
+            Thread threadEmail = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    emailSenderService.sendEmail(email, "Inviting mail",
+                            "Hello, we would like to invite you to join our group, please click link : " +
+                                    String.format(UrlUltils.getClientUrl() + "/invite/%s", groupId.toString()));
+                }
+            });
+            threadEmail.start();
+            return ResponseEntity.ok("send mail successfully");
+        } catch (Exception err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
         }
     }
 }
+
+
