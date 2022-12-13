@@ -142,10 +142,17 @@ public class JwtAuthenticationController {
         try{
             ResponseGoogleToken response = getAuthenTokenGoogle(code);
             System.out.println(response.getId_token());
-            String emailAddress = getAuthUserInfor(response.getId_token());
-            Account account = accountRepository.findByEmailAddress(emailAddress);
+            JSONObject authUserInfor = getAuthUserInfor(response.getId_token());
+            String email = authUserInfor.getAsString("email");
+            Account account = accountRepository.findByEmailAddress(email);
             if (account == null) {
-                account = Account.builder().username(UUID.randomUUID().toString()).password(passwordEncoder.encode(UUID.randomUUID().toString())).build();
+                account = Account.builder().username(UUID.randomUUID().toString())
+                        .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                        .activate(true)
+                        .emailAddress(email)
+                        .image(authUserInfor.getAsString("picture"))
+                        .fullName(authUserInfor.getAsString("name"))
+                        .build();
                 accountRepository.save(account);
             }
 
@@ -163,7 +170,7 @@ public class JwtAuthenticationController {
     }
     @Autowired
     private PasswordEncoder passwordEncoder;
-    public String getAuthUserInfor(String idToken) throws Exception{
+    public JSONObject getAuthUserInfor(String idToken) throws Exception{
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
@@ -173,7 +180,7 @@ public class JwtAuthenticationController {
         response = restTemplate.exchange(access_token_url, HttpMethod.POST, request, String.class);
         JSONObject jsonObject = (JSONObject) (new JSONParser()).parse(response.getBody());
 
-        return jsonObject.getAsString("email");
+        return jsonObject;
     }
 
 
