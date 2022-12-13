@@ -48,7 +48,7 @@ public class PresentationController {
         try {
             Presentation presentation;
             presentation = Presentation.builder().name(request.getPresentationName())
-                    .user(accountRepository.findByUsername(principal.getName())).build();
+                    .user(accountRepository.findByUsername(principal.getName())).createdTime(Instant.ofEpochSecond(Long.parseLong(request.getCreatedTime()))).build();
             return ResponseEntity.ok(presentationRepository.save(presentation));
         }
         catch (Exception err){
