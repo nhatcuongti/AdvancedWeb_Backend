@@ -115,9 +115,18 @@ public class GroupController {
 
             // Get Username
             Account account = accountRepository.findByUsername(username);
+            //get group
             GroupInfo groupInfo = groupRepository.findById(groupId).get();
             if (groupInfo == null) throw new Exception("Group is not exists");
             // Check username is owner or not
+            List<UserGroup> userGroupList = userGroupRepository.findByUser(account);
+            if(userGroupList != null){
+                for (UserGroup u: userGroupList) {
+                    if(u.getGroup().getId() == groupInfo.getId())
+                        throw new Exception("This member have existed in this group");
+                }
+            }
+
             UserGroup userGroup = UserGroup.builder().roleUserInGroup(RoleUserInGroup.ROLE_MEMBER)
                     .user(account).group(groupInfo).build();
             userGroupRepository.save(userGroup);
