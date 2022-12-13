@@ -145,8 +145,7 @@ public class JwtAuthenticationController {
             String emailAddress = getAuthUserInfor(response.getId_token());
             Account account = accountRepository.findByEmailAddress(emailAddress);
             if (account == null) {
-                account.setUsername(UUID.randomUUID().toString());
-                account.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+                account = Account.builder().username(UUID.randomUUID().toString()).password(passwordEncoder.encode(UUID.randomUUID().toString())).build();
                 accountRepository.save(account);
             }
 
@@ -155,7 +154,7 @@ public class JwtAuthenticationController {
             String urlRedirect = String.format("http://localhost:3000?access_token=%s&username=%s", jwtTokenUtil.generateToken(userDetails), account.getUsername());
             httpServletResponse.sendRedirect(urlRedirect);
         }catch (Exception e){
-
+            System.out.println(e.getMessage());
         }
 
 //         https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=
