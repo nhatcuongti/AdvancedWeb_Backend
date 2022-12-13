@@ -91,7 +91,7 @@ public class GroupController {
             if (userGroup == null) throw new Exception("User is not the member of this group");
             if (userGroup.getRoleUserInGroup() == RoleUserInGroup.ROLE_MEMBER)
                 throw new Exception("User is not Owner / Co-owner of this group");
-            return ResponseEntity.ok(String.format("http://localhost:3000/invite/%s", groupId));
+            return ResponseEntity.ok(String.format("https://advancedwebbackend-production-1b23.up.railway.app/api/group/invite/%s", groupId));
         } catch (Exception err) {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
