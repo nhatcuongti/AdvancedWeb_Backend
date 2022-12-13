@@ -74,7 +74,7 @@ public class GroupController {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
     }
-
+    // k xai
     @GetMapping(path = "/link/{groupId}") // Tạo link để mời.
     public ResponseEntity<?> retrieveInviteLink(
             HttpServletRequest httpServletRequest,
@@ -92,7 +92,7 @@ public class GroupController {
             if (userGroup == null) throw new Exception("User is not the member of this group");
             if (userGroup.getRoleUserInGroup() == RoleUserInGroup.ROLE_MEMBER)
                 throw new Exception("User is not Owner / Co-owner of this group");
-            return ResponseEntity.ok(String.format("https://advancedwebbackend-production-1b23.up.railway.app/api/group/invite/%s", groupId));
+            return ResponseEntity.ok(String.format("localhost:3000/api/group/invite/%s", groupId));
         } catch (Exception err) {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
@@ -121,7 +121,7 @@ public class GroupController {
             UserGroup userGroup = UserGroup.builder().roleUserInGroup(RoleUserInGroup.ROLE_MEMBER)
                     .user(account).group(groupInfo).build();
             userGroupRepository.save(userGroup);
-//            httpServletResponse.sendRedirect(String.format("http://localhost:3000/group?id=%s", groupId));
+//            httpServletResponse.sendRedirect(String.format("http://localhost:3000/group/%s", groupId));
             return ResponseEntity.ok("OK");
         } catch (Exception err) {
             return ResponseEntity.internalServerError().body(err.getMessage());
