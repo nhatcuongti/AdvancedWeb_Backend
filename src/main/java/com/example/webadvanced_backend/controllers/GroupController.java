@@ -5,6 +5,7 @@ import com.example.webadvanced_backend.models.*;
 import com.example.webadvanced_backend.repositories.AccountRepository;
 import com.example.webadvanced_backend.repositories.GroupRepository;
 import com.example.webadvanced_backend.repositories.UserGroupRepository;
+import com.example.webadvanced_backend.services.EmailSenderService;
 import com.example.webadvanced_backend.utils.UrlUltils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,8 @@ public class GroupController {
     private AccountRepository accountRepository;
     @Autowired
     private GroupRepository groupRepository;
+    @Autowired
+    private EmailSenderService emailSenderService;
 
     @GetMapping(path = "/1")
     public ResponseEntity<?> getMyGroup(Principal principal) {
@@ -108,7 +111,7 @@ public class GroupController {
             String username = httpServletRequest.getHeader("username");
             if (username == null) {
                 httpServletResponse.sendRedirect(
-                        String.format("http://localhost:3000/login?redirect_url=" + UrlUltils.getUrl() +"/api/group/invite/%s", groupId)
+                        String.format("http://localhost:3000/login?redirect_url=" + UrlUltils.getUrl() + "/api/group/invite/%s", groupId)
                 );
                 return null;
             }
@@ -120,9 +123,9 @@ public class GroupController {
             if (groupInfo == null) throw new Exception("Group is not exists");
             // Check username is owner or not
             List<UserGroup> userGroupList = userGroupRepository.findByUser(account);
-            if(userGroupList != null){
-                for (UserGroup u: userGroupList) {
-                    if(u.getGroup().getId() == groupInfo.getId())
+            if (userGroupList != null) {
+                for (UserGroup u : userGroupList) {
+                    if (u.getGroup().getId() == groupInfo.getId())
                         throw new Exception("This member have existed in this group");
                 }
             }
@@ -134,6 +137,25 @@ public class GroupController {
             return ResponseEntity.ok("OK");
         } catch (Exception err) {
             return ResponseEntity.internalServerError().body(err.getMessage());
+        }
+    }
+        @GetMapping(path = "/send-inviting-mail") // Tạo link để mời.
+        @ResponseBody
+        public ResponseEntity<?> sendInvitingMail(@RequestParam Integer groupId, @RequestParam String email) {
+            try {
+               Thread threadEmail = new Thread(new Runnable() {
+                   @Override
+                            public void run() {
+                                emailSenderService.sendEmail(email, "Inviting mail",
+                                        "Hello, we would like to invite you to join our group, please click link : " +
+                                                String.format(UrlUltils.getClientUrl() + "/invite/%s", groupId.toString()));
+                            }
+                        });
+                        threadEmail.start();
+                return ResponseEntity.ok("send mail successfully");
+            } catch (Exception err) {
+                return ResponseEntity.internalServerError().body(err.getMessage());
+            }
         }
     }
 }
