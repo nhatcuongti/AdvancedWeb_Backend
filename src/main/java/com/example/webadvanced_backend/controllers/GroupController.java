@@ -5,6 +5,7 @@ import com.example.webadvanced_backend.models.*;
 import com.example.webadvanced_backend.repositories.AccountRepository;
 import com.example.webadvanced_backend.repositories.GroupRepository;
 import com.example.webadvanced_backend.repositories.UserGroupRepository;
+import com.example.webadvanced_backend.utils.UrlUltils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -107,7 +108,7 @@ public class GroupController {
             String username = httpServletRequest.getHeader("username");
             if (username == null) {
                 httpServletResponse.sendRedirect(
-                        String.format("http://localhost:3000/login?redirect_url=http://localhost:8080/api/group/invite/%s", groupId)
+                        String.format("http://localhost:3000/login?redirect_url=" + UrlUltils.getUrl() +"/api/group/invite/%s", groupId)
                 );
                 return null;
             }

@@ -10,6 +10,7 @@ import com.example.webadvanced_backend.security.models.MessageResponse;
 import com.example.webadvanced_backend.security.service.JwtTokenUtil;
 import com.example.webadvanced_backend.security.service.JwtUserDetailsService;
 import com.example.webadvanced_backend.services.EmailSenderService;
+import com.example.webadvanced_backend.utils.UrlUltils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
@@ -82,7 +83,7 @@ public class JwtAuthenticationController {
             public void run() {
                 emailSenderService.sendEmail(account.getEmailAddress(), "Activated your account",
                         "Hello, if you need to activate your account from my application, please click link : " +
-                                String.format("http://localhost:8080/api/user/activate/%s", account.getUsername()));
+                                String.format(UrlUltils.getUrl() + "/api/user/activate/%s", account.getUsername()));
             }
         });
         threadEmail.start();
@@ -186,7 +187,7 @@ public class JwtAuthenticationController {
         String access_token_url = "https://oauth2.googleapis.com/token";
         access_token_url += "?code=" + code;
         access_token_url += "&grant_type=authorization_code";
-        access_token_url += "&redirect_uri=http://localhost:8080/auth/oauth2/code/callback";
+        access_token_url += "&redirect_uri="+ UrlUltils.getUrl()+"/auth/oauth2/code/callback";
         access_token_url += "&client_id=947258420566-o8mj2pfqrs96i6mski8k990taa83mt9j.apps.googleusercontent.com";
         access_token_url += "&client_secret=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";
         ResponseEntity<String> response = null;
@@ -223,7 +224,7 @@ public class JwtAuthenticationController {
                 public void run() {
                     emailSenderService.sendEmail(account.getEmailAddress(), "Activated your account",
                             "Hello, if you need to activate your account from my application, please click link : " +
-                                    String.format("http://localhost:8080/api/user/activate/%s", account.getUsername()));
+                                    String.format(UrlUltils.getUrl()+ "/api/user/activate/%s", account.getUsername()));
                 }
             });
             threadEmail.start();
