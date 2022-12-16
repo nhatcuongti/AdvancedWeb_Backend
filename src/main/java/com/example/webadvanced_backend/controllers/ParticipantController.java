@@ -53,8 +53,9 @@ public class ParticipantController {
         }
 
     }
+    // set role to member
     @PostMapping(path = "/4")
-    public ResponseEntity<?> upgraRole(@RequestBody UpgradeRoleRequest upgradeRoleRequest, Principal principal){
+    public ResponseEntity<?> testRole(@RequestBody UpgradeRoleRequest upgradeRoleRequest, Principal principal){
         try {
             String username = upgradeRoleRequest.getUsername();
             List<UserGroup> list = userGroupRepository.findByGroup(groupRepository.findById(upgradeRoleRequest.getGroupId()));
@@ -84,7 +85,6 @@ public class ParticipantController {
     }
 
     public UserGroup findUserinSpecficGr(int id, String username, List<UserGroup> list ) {
-        UserGroup myAccount = null;
         for (UserGroup u : list) {
             if (u.getUser() == accountRepository.findByUsername(username))
                 return u;

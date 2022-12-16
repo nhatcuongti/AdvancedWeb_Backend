@@ -10,6 +10,7 @@ import com.example.webadvanced_backend.security.models.MessageResponse;
 import com.example.webadvanced_backend.security.service.JwtTokenUtil;
 import com.example.webadvanced_backend.security.service.JwtUserDetailsService;
 import com.example.webadvanced_backend.services.EmailSenderService;
+import com.example.webadvanced_backend.utils.UrlUltils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
@@ -82,7 +83,7 @@ public class JwtAuthenticationController {
             public void run() {
                 emailSenderService.sendEmail(account.getEmailAddress(), "Activated your account",
                         "Hello, if you need to activate your account from my application, please click link : " +
-                                String.format("http://localhost:8080/api/user/activate/%s", account.getUsername()));
+                                String.format(UrlUltils.getUrl() + "/api/user/activate/%s", account.getUsername()));
             }
         });
         threadEmail.start();
@@ -141,11 +142,17 @@ public class JwtAuthenticationController {
         try{
             ResponseGoogleToken response = getAuthenTokenGoogle(code);
             System.out.println(response.getId_token());
-            String emailAddress = getAuthUserInfor(response.getId_token());
-            Account account = accountRepository.findByEmailAddress(emailAddress);
+            JSONObject authUserInfor = getAuthUserInfor(response.getId_token());
+            String email = authUserInfor.getAsString("email");
+            Account account = accountRepository.findByEmailAddress(email);
             if (account == null) {
-                account.setUsername(UUID.randomUUID().toString());
-                account.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+                account = Account.builder().username(UUID.randomUUID().toString())
+                        .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                        .activate(true)
+                        .emailAddress(email)
+                        .image(authUserInfor.getAsString("picture"))
+                        .fullName(authUserInfor.getAsString("name"))
+                        .build();
                 accountRepository.save(account);
             }
 
@@ -154,7 +161,7 @@ public class JwtAuthenticationController {
             String urlRedirect = String.format("http://localhost:3000?access_token=%s&username=%s", jwtTokenUtil.generateToken(userDetails), account.getUsername());
             httpServletResponse.sendRedirect(urlRedirect);
         }catch (Exception e){
-
+            System.out.println(e.getMessage());
         }
 
 //         https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=
@@ -163,7 +170,7 @@ public class JwtAuthenticationController {
     }
     @Autowired
     private PasswordEncoder passwordEncoder;
-    public String getAuthUserInfor(String idToken) throws Exception{
+    public JSONObject getAuthUserInfor(String idToken) throws Exception{
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
@@ -173,7 +180,7 @@ public class JwtAuthenticationController {
         response = restTemplate.exchange(access_token_url, HttpMethod.POST, request, String.class);
         JSONObject jsonObject = (JSONObject) (new JSONParser()).parse(response.getBody());
 
-        return jsonObject.getAsString("email");
+        return jsonObject;
     }
 
 
@@ -186,7 +193,7 @@ public class JwtAuthenticationController {
         String access_token_url = "https://oauth2.googleapis.com/token";
         access_token_url += "?code=" + code;
         access_token_url += "&grant_type=authorization_code";
-        access_token_url += "&redirect_uri=http://localhost:8080/auth/oauth2/code/callback";
+        access_token_url += "&redirect_uri="+ UrlUltils.getUrl()+"/auth/oauth2/code/callback";
         access_token_url += "&client_id=947258420566-o8mj2pfqrs96i6mski8k990taa83mt9j.apps.googleusercontent.com";
         access_token_url += "&client_secret=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";
         ResponseEntity<String> response = null;
@@ -223,7 +230,7 @@ public class JwtAuthenticationController {
                 public void run() {
                     emailSenderService.sendEmail(account.getEmailAddress(), "Activated your account",
                             "Hello, if you need to activate your account from my application, please click link : " +
-                                    String.format("http://localhost:8080/api/user/activate/%s", account.getUsername()));
+                                    String.format(UrlUltils.getUrl()+ "/api/user/activate/%s", account.getUsername()));
                 }
             });
             threadEmail.start();

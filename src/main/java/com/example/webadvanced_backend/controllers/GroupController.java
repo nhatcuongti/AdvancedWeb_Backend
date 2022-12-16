@@ -5,6 +5,8 @@ import com.example.webadvanced_backend.models.*;
 import com.example.webadvanced_backend.repositories.AccountRepository;
 import com.example.webadvanced_backend.repositories.GroupRepository;
 import com.example.webadvanced_backend.repositories.UserGroupRepository;
+import com.example.webadvanced_backend.services.EmailSenderService;
+import com.example.webadvanced_backend.utils.UrlUltils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +17,7 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping(path ="/api/group")
+@RequestMapping(path = "/api/group")
 @CrossOrigin
 public class GroupController {
     @Autowired
@@ -24,40 +26,40 @@ public class GroupController {
     private AccountRepository accountRepository;
     @Autowired
     private GroupRepository groupRepository;
-    @GetMapping(path ="/1")
-    public ResponseEntity<?> getMyGroup( Principal principal){
-        try{
+    @Autowired
+    private EmailSenderService emailSenderService;
+
+    @GetMapping(path = "/1")
+    public ResponseEntity<?> getMyGroup(Principal principal) {
+        try {
             Account account = accountRepository.findByUsername(principal.getName());
             List<UserGroup> list = userGroupRepository.findByUser(account);
             return ResponseEntity.ok(list);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
-    @GetMapping(path ="/list")
-    public ResponseEntity<?> getListGroup( Principal principal){
-        try{
+    @GetMapping(path = "/list")
+    public ResponseEntity<?> getListGroup(Principal principal) {
+        try {
             return ResponseEntity.ok(groupRepository.findAll());
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
-    @GetMapping(path ="/user-group/list")
-    public ResponseEntity<?> getUserGroupList( Principal principal){
-        try{
+    @GetMapping(path = "/user-group/list")
+    public ResponseEntity<?> getUserGroupList(Principal principal) {
+        try {
             return ResponseEntity.ok(userGroupRepository.findAll());
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
     @PostMapping(path = "/2")
-    public ResponseEntity<?> createAGroup(@RequestBody CreateGroupRequest createGroupRequest, Principal principal){
+    public ResponseEntity<?> createAGroup(@RequestBody CreateGroupRequest createGroupRequest, Principal principal) {
         try {
             GroupInfo groupInfo;
             UserGroup userGroup;
@@ -71,17 +73,17 @@ public class GroupController {
             UserGroup userGroup1 = userGroupRepository.save(userGroup);
 
             return ResponseEntity.ok(userGroup1);
-        }
-        catch (Exception err){
+        } catch (Exception err) {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
     }
 
+    // k xai
     @GetMapping(path = "/link/{groupId}") // Tạo link để mời.
     public ResponseEntity<?> retrieveInviteLink(
             HttpServletRequest httpServletRequest,
             @PathVariable Integer groupId
-    ){
+    ) {
         try {
             String username = httpServletRequest.getHeader("username");
 
@@ -92,10 +94,10 @@ public class GroupController {
             // Check username is owner or not
             UserGroup userGroup = userGroupRepository.findByUserAndGroup(account, groupInfo);
             if (userGroup == null) throw new Exception("User is not the member of this group");
-            if (userGroup.getRoleUserInGroup() == RoleUserInGroup.ROLE_MEMBER) throw new Exception("User is not Owner / Co-owner of this group");
-            return ResponseEntity.ok(String.format("http://localhost:3000/invite/%s", groupId));
-        }
-        catch (Exception err){
+            if (userGroup.getRoleUserInGroup() == RoleUserInGroup.ROLE_MEMBER)
+                throw new Exception("User is not Owner / Co-owner of this group");
+            return ResponseEntity.ok(String.format("localhost:3000/api/group/invite/%s", groupId));
+        } catch (Exception err) {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
     }
@@ -105,29 +107,58 @@ public class GroupController {
             HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse,
             @PathVariable Integer groupId
-    ){
+    ) {
         try {
             String username = httpServletRequest.getHeader("username");
             if (username == null) {
                 httpServletResponse.sendRedirect(
-                        String.format("http://localhost:3000/login?redirect_url=http://localhost:8080/api/group/invite/%s", groupId)
-                        );
+                        String.format("http://localhost:3000/login?redirect_url=" + UrlUltils.getUrl() + "/api/group/invite/%s", groupId)
+                );
                 return null;
             }
 
             // Get Username
             Account account = accountRepository.findByUsername(username);
+            //get group
             GroupInfo groupInfo = groupRepository.findById(groupId).get();
             if (groupInfo == null) throw new Exception("Group is not exists");
             // Check username is owner or not
+            List<UserGroup> userGroupList = userGroupRepository.findByUser(account);
+            if (userGroupList != null) {
+                for (UserGroup u : userGroupList) {
+                    if (u.getGroup().getId() == groupInfo.getId())
+                        throw new Exception("This member have existed in this group");
+                }
+            }
+
             UserGroup userGroup = UserGroup.builder().roleUserInGroup(RoleUserInGroup.ROLE_MEMBER)
                     .user(account).group(groupInfo).build();
             userGroupRepository.save(userGroup);
-//            httpServletResponse.sendRedirect(String.format("http://localhost:3000/group?id=%s", groupId));
+//            httpServletResponse.sendRedirect(String.format("http://localhost:3000/group/%s", groupId));
             return ResponseEntity.ok("OK");
+        } catch (Exception err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
         }
-        catch (Exception err){
+    }
+
+    @GetMapping(path = "/send-inviting-mail") // Tạo link để mời.
+    @ResponseBody
+    public ResponseEntity<?> sendInvitingMail(@RequestParam Integer groupId, @RequestParam String email) {
+        try {
+            Thread threadEmail = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    emailSenderService.sendEmail(email, "Inviting mail",
+                            "Hello, we would like to invite you to join our group, please click link : " +
+                                    String.format(UrlUltils.getClientUrl() + "/invite/%s", groupId.toString()));
+                }
+            });
+            threadEmail.start();
+            return ResponseEntity.ok("send mail successfully");
+        } catch (Exception err) {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
     }
 }
+
+
