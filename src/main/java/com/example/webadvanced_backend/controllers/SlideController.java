@@ -38,10 +38,10 @@ public class SlideController {
 
 
     @ResponseBody
-    @GetMapping()
-    ResponseEntity<?> getSlideList(Principal principal, @RequestParam int preId) {
+    @GetMapping("/{preId}")
+    ResponseEntity<?> getSlideList(Principal principal, @PathVariable String preId) {
         try {
-            Presentation presentation = presentationRepository.findById(preId);
+            Presentation presentation = presentationRepository.findById(Integer.parseInt(preId));
             if (principal.getName().equals(presentation.getUser().getUsername())) {
                 List<Slide> list = slideRepository.findByPresentation(presentation);
                 return ResponseEntity.ok(list);
@@ -54,10 +54,10 @@ public class SlideController {
     }
 
     @ResponseBody
-    @GetMapping("/{slideId}")
-    ResponseEntity<?> getSlideDetail(Principal principal, @PathVariable int slideId) {
+    @GetMapping("/detail/{slideId}")
+    ResponseEntity<?> getSlideDetail(Principal principal, @PathVariable String slideId) {
         try {
-            Slide slide = slideRepository.findById(slideId);
+            Slide slide = slideRepository.findById(Integer.parseInt(slideId));
             return ResponseEntity.ok(slide);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e);
@@ -80,10 +80,10 @@ public class SlideController {
 
     }
 
-    @PostMapping(path = "/edit/{id}")
-    public ResponseEntity<?> editSlideTitle(@RequestBody EditSlideTitleRequest request, @PathVariable String id) {
+    @PostMapping(path = "/edit/{slideId}")
+    public ResponseEntity<?> editSlideTitle(@RequestBody EditSlideTitleRequest request, @PathVariable String slideId) {
         try {
-            Optional<Slide> optional = slideRepository.findById(Integer.valueOf(id));
+            Optional<Slide> optional = slideRepository.findById(Integer.valueOf(slideId));
             Slide slide = optional.get();
 
 

@@ -28,11 +28,11 @@ public class SlideTypeController {
     ContentRepository contentRepository;
 
     @ResponseBody
-    @GetMapping()
-    ResponseEntity<?> getSlideType(Principal principal, @RequestParam int contentId) {
+    @GetMapping("/{contentId}")
+    ResponseEntity<?> getSlideType(Principal principal, @PathVariable String contentId) {
         try {
             List<ContentMultichoice> list = null;
-            Content currentContent = contentRepository.findById(contentId);
+            Content currentContent = contentRepository.findById(Integer.parseInt(contentId));
             if (currentContent.getSlideType() == 1) {
                 list = multichoiceRepository.findByContent(currentContent);
             }
