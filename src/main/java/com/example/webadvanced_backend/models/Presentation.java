@@ -26,10 +26,10 @@ public class Presentation {
     private Account user;
 
     @Column(name = "modified_time")
-    private Instant modifiedTime;
+    private String modifiedTime;
 
     @Column(name = "created_time")
-    private Instant createdTime;
+    private String createdTime;
 
     public Integer getId() {
         return id;
@@ -55,19 +55,19 @@ public class Presentation {
         this.user = user;
     }
 
-    public Instant getModifiedTime() {
+    public String getModifiedTime() {
         return modifiedTime;
     }
 
-    public void setModifiedTime(Instant modifiedTime) {
+    public void setModifiedTime(String modifiedTime) {
         this.modifiedTime = modifiedTime;
     }
 
-    public Instant getCreatedTime() {
+    public String getCreatedTime() {
         return createdTime;
     }
 
-    public void setCreatedTime(Instant createdTime) {
+    public void setCreatedTime(String createdTime) {
         this.createdTime = createdTime;
     }
 

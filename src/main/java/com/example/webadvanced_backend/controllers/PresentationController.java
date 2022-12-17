@@ -46,11 +46,10 @@ public class PresentationController {
     @PostMapping(path = "/add")
     public ResponseEntity<?> createAPresentation(@RequestBody CreatePresentationRequest request, Principal principal){
         try {
-            Instant instant = Instant.ofEpochMilli(Long.parseLong(request.getCreatedTime()));
             Presentation presentation;
             presentation = Presentation.builder().name(request.getPresentationName())
                     .user(accountRepository.findByUsername(principal.getName()))
-                    .createdTime(instant)
+                    .createdTime( request.getCreatedTime())
                     .build();
             return ResponseEntity.ok(presentationRepository.save(presentation));
         }
@@ -64,7 +63,7 @@ public class PresentationController {
         try {
             Optional<Presentation> presentation = presentationRepository.findById(Integer.valueOf(id));
             presentation.get().setName(request.getPresentationName());
-            presentation.get().setModifiedTime(Instant.ofEpochMilli(Long.parseLong(request.getEditTime())));
+            presentation.get().setModifiedTime(request.getEditTime());
             return ResponseEntity.ok(presentationRepository.save(presentation.get()));
         } catch (Exception err) {
             return ResponseEntity.internalServerError().body(err.getMessage());
