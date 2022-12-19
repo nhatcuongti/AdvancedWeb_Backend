@@ -1,8 +1,15 @@
 package com.example.webadvanced_backend.models;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 
+@Builder
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "content_paragraph")
 public class ContentParagraph {
     @Id

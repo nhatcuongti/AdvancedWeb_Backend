@@ -1,8 +1,15 @@
 package com.example.webadvanced_backend.models;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 
+@Builder
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "content_heading")
 public class ContentHeading {
     @Id
@@ -17,8 +24,8 @@ public class ContentHeading {
     @Column(name = "heading", length = 500)
     private String heading;
 
-    @Column(name = "sub", length = 500)
-    private String sub;
+    @Column(name = "sub_heading", length = 500)
+    private String subHeading;
 
     public Integer getId() {
         return id;
@@ -44,12 +51,12 @@ public class ContentHeading {
         this.heading = heading;
     }
 
-    public String getSub() {
-        return sub;
+    public String getSubHeading() {
+        return subHeading;
     }
 
-    public void setSub(String sub) {
-        this.sub = sub;
+    public void setSubHeading(String subHeading) {
+        this.subHeading = subHeading;
     }
 
 }

@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
+// create option in multichoice
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class VoteMessageRequest {
-    int slideId;
-    int optionId;
-    String createdTime;
+public class CreateParagraphRequest {
+    int contentId;
+    String heading;
+    String paragraph;
 }

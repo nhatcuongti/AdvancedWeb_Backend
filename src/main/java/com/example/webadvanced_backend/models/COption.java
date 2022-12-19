@@ -20,6 +20,17 @@ public class COption {
     @Column(name = "name", length = 150)
     private String name;
 
+    @Column(name = "number_vote")
+    private Integer numberVote;
+
+    public Integer getNumberVote() {
+        return numberVote;
+    }
+
+    public void setNumberVote(Integer numberVote) {
+        this.numberVote = numberVote;
+    }
+
 
     public Integer getId() {
         return id;

@@ -28,9 +28,17 @@ public class PresentationController {
     @Autowired
     SlideRepository slideRepository;
     @Autowired
+    QuestionRepository questionRepository;
+    @Autowired
     ContentMultichoiceRepository multichoiceRepository;
     @Autowired
+    ContentHeadingRepository headingRepository;
+    @Autowired
+    ContentParagraphRepository paragraphRepository;
+    @Autowired
     ContentRepository contentRepository;
+    @Autowired
+    VoteRepository voteRepository;
 
     @GetMapping()
     ResponseEntity<?> getPresentationList(Principal principal){
@@ -81,19 +89,42 @@ public class PresentationController {
             // tim cac content id cua cac slide
             List<Integer> listContentId = new ArrayList<>();
             for (Slide s: listSlide) {
-                if(s.getContent().getSlideType() == 1)
-                    listContentId.add(s.getContent().getId());
+                   listContentId.add(s.getContent().getId());
             }
             //tim cac list content
             List<Content> listContent = contentRepository.findAllById(listContentId);
             //xoa content multichoice
             List<ContentMultichoice> listMultichoice = new ArrayList<>();
+            List<ContentParagraph> listParagraph = new ArrayList<>();
+            List<ContentHeading> listHeading = new ArrayList<>();
             for(Content c: listContent ){
-                listMultichoice.addAll(multichoiceRepository.findByContent(c));
+                if(c.getSlideType() == 1)
+                    listMultichoice.addAll(multichoiceRepository.findByContent(c));
+                else if(c.getSlideType() == 2)
+                    listParagraph.addAll(paragraphRepository.findByContent(c));
+                else if(c.getSlideType() == 3)
+                    listHeading.addAll(headingRepository.findByContent(c));
             }
-            multichoiceRepository.deleteAll(listMultichoice);
+            if(!listMultichoice.isEmpty()){
+                //delete votes of each option
+                List<Vote> listVote = new ArrayList<>();
+                for(ContentMultichoice m : listMultichoice){
+                    listVote.addAll(voteRepository.findByOption(m.getOption()));
+                }
+                voteRepository.deleteAll(listVote);
+                multichoiceRepository.deleteAll(listMultichoice);
+
+            }
+            if(!listParagraph.isEmpty())
+                headingRepository.deleteAll(listHeading);
+            if(!listParagraph.isEmpty())
+                paragraphRepository.deleteAll(listParagraph);
             // xoa cac slide
             slideRepository.deleteAll(listSlide);
+            //xoa question
+            List<Question> listQuestion= questionRepository.findByPresentation(presentation);
+            questionRepository.deleteAll(listQuestion);
+            //
             presentationRepository.delete(presentation);
             return ResponseEntity.ok(presentation);
         }

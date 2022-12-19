@@ -25,6 +25,7 @@ public class ContentMultichoice {
     @JoinColumn(name = "option_id")
     private COption option;
 
+
     public Integer getId() {
         return id;
     }
