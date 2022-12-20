@@ -1,7 +1,15 @@
 package com.example.webadvanced_backend.models;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import org.springframework.jmx.export.annotation.ManagedNotifications;
+
 import javax.persistence.*;
 
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "question")
 public class Question {

@@ -55,7 +55,7 @@ public class ParticipantController {
     }
     // set role to member
     @PostMapping(path = "/4")
-    public ResponseEntity<?> testRole(@RequestBody UpgradeRoleRequest upgradeRoleRequest, Principal principal){
+    public ResponseEntity<?> demoteRole(@RequestBody UpgradeRoleRequest upgradeRoleRequest, Principal principal){
         try {
             String username = upgradeRoleRequest.getUsername();
             List<UserGroup> list = userGroupRepository.findByGroup(groupRepository.findById(upgradeRoleRequest.getGroupId()));
