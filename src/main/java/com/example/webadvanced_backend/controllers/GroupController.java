@@ -5,6 +5,7 @@ import com.example.webadvanced_backend.models.*;
 import com.example.webadvanced_backend.repositories.AccountRepository;
 import com.example.webadvanced_backend.repositories.GroupRepository;
 import com.example.webadvanced_backend.repositories.UserGroupRepository;
+import com.example.webadvanced_backend.requestentities.DeleteGroupRequest;
 import com.example.webadvanced_backend.services.EmailSenderService;
 import com.example.webadvanced_backend.utils.UrlUltils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -159,6 +160,21 @@ public class GroupController {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
     }
+    @PostMapping(path = "delete-group")
+    public ResponseEntity<?> deleteGroup(@RequestBody DeleteGroupRequest request){
+        try{
+            GroupInfo groupInfo = groupRepository.findById(request.getGroupId());
+            List<UserGroup> list = userGroupRepository.findByGroup(groupInfo);
+            userGroupRepository.deleteAll(list);
+            groupRepository.delete(groupInfo);
+            return ResponseEntity.ok(groupInfo);
+        }
+        catch (Exception e){
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+
+    }
+
 }
 
 
