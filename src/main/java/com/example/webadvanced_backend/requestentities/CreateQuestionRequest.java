@@ -1,14 +1,15 @@
 package com.example.webadvanced_backend.requestentities;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
+@Builder
 @AllArgsConstructor
-public class VoteMessageRequest {
-    int slideId;
-    int optionId;
-    String createdTime;
+@NoArgsConstructor
+public class CreateQuestionRequest {
+    private int preId;
+    private String question;
 }

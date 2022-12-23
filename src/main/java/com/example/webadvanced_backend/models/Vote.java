@@ -6,25 +6,27 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-@Entity
 @Builder
+@Entity
+@Table(name = "vote")
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "content_multichoice")
-public class ContentMultichoice {
+public class Vote {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "content_id")
-    private Content content;
-
-    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     @JoinColumn(name = "option_id")
     private COption option;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_vote")
+    private Account userVote;
+
+    @Column(name = "created_time")
+    private String createdTime;
 
     public Integer getId() {
         return id;
@@ -34,20 +36,28 @@ public class ContentMultichoice {
         this.id = id;
     }
 
-    public Content getContent() {
-        return content;
-    }
-
-    public void setContent(Content content) {
-        this.content = content;
-    }
-
     public COption getOption() {
         return option;
     }
 
     public void setOption(COption option) {
         this.option = option;
+    }
+
+    public Account getUserVote() {
+        return userVote;
+    }
+
+    public void setUserVote(Account userVote) {
+        this.userVote = userVote;
+    }
+
+    public String getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(String createdTime) {
+        this.createdTime = createdTime;
     }
 
 }

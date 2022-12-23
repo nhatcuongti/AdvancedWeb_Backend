@@ -36,7 +36,6 @@ public class JwtUserDetailsService implements UserDetailsService {
                         .username(user.getUsername())
                         .password(bcryptEncoder.encode(user.getPassword()))
                         .image(user.getImage())
-                        .facebookId(user.getFacebookId())
                         .fullName(user.getFullName())
                         .emailAddress(user.getEmailAddress())
                         .build();

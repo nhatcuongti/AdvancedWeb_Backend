@@ -1,15 +1,14 @@
 package com.example.webadvanced_backend.models;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.Instant;
-import java.util.Date;
 
 @Entity
 @Builder
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "presentation")
@@ -27,10 +26,49 @@ public class Presentation {
     private Account user;
 
     @Column(name = "modified_time")
-    private Instant modifiedTime;
+    private String modifiedTime;
 
     @Column(name = "created_time")
-    private Instant createdTime;
+    private String createdTime;
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Account getUser() {
+        return user;
+    }
+
+    public void setUser(Account user) {
+        this.user = user;
+    }
+
+    public String getModifiedTime() {
+        return modifiedTime;
+    }
+
+    public void setModifiedTime(String modifiedTime) {
+        this.modifiedTime = modifiedTime;
+    }
+
+    public String getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(String createdTime) {
+        this.createdTime = createdTime;
+    }
 
 }

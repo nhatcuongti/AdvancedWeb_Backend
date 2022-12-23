@@ -1,13 +1,8 @@
 package com.example.webadvanced_backend.controllers;
 
-import com.example.webadvanced_backend.models.Content;
-import com.example.webadvanced_backend.models.ContentMultichoice;
-import com.example.webadvanced_backend.repositories.ContentMultichoiceRepository;
+import com.example.webadvanced_backend.models.*;
+import com.example.webadvanced_backend.repositories.*;
 import com.example.webadvanced_backend.requestentities.CreateSlideRequest;
-import com.example.webadvanced_backend.models.Presentation;
-import com.example.webadvanced_backend.models.Slide;
-import com.example.webadvanced_backend.repositories.PresentationRepository;
-import com.example.webadvanced_backend.repositories.SlideRepository;
 import com.example.webadvanced_backend.requestentities.DeleteSlideRequest;
 import com.example.webadvanced_backend.requestentities.EditSlideTitleRequest;
 import com.example.webadvanced_backend.requestentities.VoteMessageRequest;
@@ -19,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,8 +30,12 @@ public class SlideController {
     ContentMultichoiceRepository multichoiceRepository;
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
-
-
+    @Autowired
+    VoteRepository voteRepository;
+    @Autowired
+    ContentHeadingRepository headingRepository;
+    @Autowired
+    ContentParagraphRepository paragraphRepository;
 
     @ResponseBody
     @GetMapping("/{preId}")
@@ -102,12 +102,25 @@ public class SlideController {
             //xoa content multichoice
             if(slide.getContent().getSlideType() == 1){
                 List<ContentMultichoice> listMultichoice = multichoiceRepository.findByContent(slide.getContent());
+                List<Vote> listVote = new ArrayList<>();
+                // xoa vote
+                for(ContentMultichoice m : listMultichoice){
+                    listVote.addAll(voteRepository.findByOption(m.getOption()));
+                }
+                voteRepository.deleteAll(listVote);
                 multichoiceRepository.deleteAll(listMultichoice);
-                slideRepository.delete(slide);
-                return ResponseEntity.ok(slide);
+            }
+            else if(slide.getContent().getSlideType() == 2){
+                List <ContentParagraph> listParagraph = paragraphRepository.findByContent(slide.getContent());
+                paragraphRepository.deleteAll(listParagraph);
+            }
+            else if(slide.getContent().getSlideType() == 3){
+                List <ContentHeading> listHeading = headingRepository.findByContent(slide.getContent());
+                headingRepository.deleteAll(listHeading);
             }
             // xoa cac slide
-            return ResponseEntity.ok("cant not delete");
+            slideRepository.delete(slide);
+            return ResponseEntity.ok(slide);
         }
         catch (Exception err){
             return ResponseEntity.internalServerError().body(err.getMessage());

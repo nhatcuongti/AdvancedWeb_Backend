@@ -27,8 +27,8 @@ public class Account {
     @Column(name = "email_address")
     private String emailAddress;
 
-    @Column(name = "facebook_id")
-    private String facebookId;
+    @Column(name = "type_account")
+    private String typeAccount;
 
     @Column(name = "full_name")
     private String fullName;
