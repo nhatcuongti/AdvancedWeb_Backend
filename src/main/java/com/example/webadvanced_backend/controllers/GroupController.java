@@ -29,6 +29,8 @@ public class GroupController {
     private GroupRepository groupRepository;
     @Autowired
     private EmailSenderService emailSenderService;
+    @Autowired
+    private UrlUltils urlUltils;
 
     @GetMapping(path = "/1")
     public ResponseEntity<?> getMyGroup(Principal principal) {
@@ -97,7 +99,7 @@ public class GroupController {
             if (userGroup == null) throw new Exception("User is not the member of this group");
             if (userGroup.getRoleUserInGroup() == RoleUserInGroup.ROLE_MEMBER)
                 throw new Exception("User is not Owner / Co-owner of this group");
-            return ResponseEntity.ok(String.format(UrlUltils.getClientUrl() + "/api/group/invite/%s", groupId));
+            return ResponseEntity.ok(String.format(urlUltils.getClientUrl() + "/api/group/invite/%s", groupId));
         } catch (Exception err) {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
@@ -113,7 +115,8 @@ public class GroupController {
             String username = httpServletRequest.getHeader("username");
             if (username == null) {
                 httpServletResponse.sendRedirect(
-                        String.format(UrlUltils.getClientUrl() + "/login?redirect_url=" + UrlUltils.getUrl() + "/api/group/invite/%s", groupId)
+
+                        String.format(urlUltils.getClientUrl() + "/login?redirect_url=" + urlUltils.getUrl() + "/api/group/invite/%s", groupId)
                 );
                 return null;
             }
@@ -151,7 +154,7 @@ public class GroupController {
                 public void run() {
                     emailSenderService.sendEmail(email, "Inviting mail",
                             "Hello, we would like to invite you to join our group, please click link : " +
-                                    String.format(UrlUltils.getClientUrl() + "/invite/%s", groupId.toString()));
+                                    String.format(urlUltils.getClientUrl() + "/invite/%s", groupId.toString()));
                 }
             });
             threadEmail.start();

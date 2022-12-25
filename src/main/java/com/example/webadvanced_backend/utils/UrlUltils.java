@@ -1,18 +1,21 @@
 package com.example.webadvanced_backend.utils;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UrlUltils {
     @Value("${root-url}")
-    static private String url;
+    private String url;
 
     @Value("${client-url}")
-    static private String clientUrl;
+    private String clientUrl;
 
-    static public String getUrl(){
+    public String getUrl(){
         return url;
     }
-    static public String getClientUrl(){
+    public String getClientUrl(){
         return clientUrl;
     }
 }

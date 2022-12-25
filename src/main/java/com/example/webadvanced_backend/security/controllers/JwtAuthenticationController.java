@@ -53,6 +53,9 @@ public class JwtAuthenticationController  {
     @Autowired
     private EmailSenderService emailSenderService;
 
+    @Autowired
+    private UrlUltils urlUltils;
+
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
@@ -83,7 +86,7 @@ public class JwtAuthenticationController  {
             public void run() {
                 emailSenderService.sendEmail(account.getEmailAddress(), "Activated your account",
                         "Hello, if you need to activate your account from my application, please click link : " +
-                                String.format(UrlUltils.getUrl() + "/auth/activate/%s", account.getUsername()));
+                                String.format(urlUltils.getUrl() + "/auth/activate/%s", account.getUsername()));
             }
         });
         threadEmail.start();
@@ -131,7 +134,7 @@ public class JwtAuthenticationController  {
             emailAddress = accountDTO.getEmailAddress();
             System.out.println(emailAddress);
             Account accountByEmail = accountRepository.findByEmailAddress(emailAddress);
-            if (accountByEmail == null) return ResponseEntity.ok("Email address is not exists");
+            if (accountByEmail == null) return ResponseEntity.badRequest().body("Your Email isn't exists");
             Thread threadEmail = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -140,13 +143,13 @@ public class JwtAuthenticationController  {
                             "\n" +
                             "You have chosen to reset your password. Please click this link to create a new one: \n" +
                             "\n" +
-                            String.format(UrlUltils.getClientUrl() + "/reset_password/%s", accountByEmail.getUsername().toString()) +
+                            String.format(urlUltils.getClientUrl() + "/reset_password/%s", accountByEmail.getUsername().toString()) +
                             "\n" +
                             "If you did not reset your password, please ignore this email. If you have any questions or feedback you can just reply directly to this email.\n" +
                             "\n" +
                             "Thanks for using our service!\n" +
                             "Kind regards, Team";
-                    emailSenderService.sendEmail(accountByEmail.getEmailAddress(), "Inviting mail", bodyMessage);
+                    emailSenderService.sendEmail(accountByEmail.getEmailAddress(), "Reset password mail", bodyMessage);
                 }
             });
             threadEmail.start();
@@ -164,13 +167,15 @@ public class JwtAuthenticationController  {
     @PostMapping(value = "/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody AccountDTO accountDTO) throws Exception {
         // Authenticate user is valid or not
-        String emailAddress;
+        String username;
         String newPassword ;
+        Account accountByUsername;
         try {
-            emailAddress = accountDTO.getUsername();
+            username = accountDTO.getUsername();
             newPassword = accountDTO.getPassword();
-//            Account accountByEmail = accountRepository.findByEmailAddress(emailAddress);
-//            if (accountByEmail == null) return ResponseEntity.ok("Username is not valid")
+            accountByUsername = accountRepository.findByUsername(username);
+            if (accountByUsername == null) return ResponseEntity.badRequest().body("Username is not valid");
+            accountByUsername.setPassword(passwordEncoder.encode(newPassword));
         } catch (Exception e) {
             String errorMsg = "Account is not activate !!";
             if (e instanceof AuthenticationException)
@@ -178,7 +183,7 @@ public class JwtAuthenticationController  {
             return ResponseEntity.status(401).body(errorMsg);
         }
 
-        return ResponseEntity.ok(emailAddress);
+        return ResponseEntity.ok(accountRepository.save(accountByUsername));
 
     }
 
@@ -217,15 +222,11 @@ public class JwtAuthenticationController  {
 
             final UserDetails userDetails = userDetailsService
                     .loadUserByUsername(account.getUsername());
-            String urlRedirect = String.format("%s?access_token=%s&username=%s", UrlUltils.getClientUrl(), jwtTokenUtil.generateToken(userDetails), account.getUsername());
+            String urlRedirect = String.format("%s?access_token=%s&username=%s", urlUltils.getClientUrl(), jwtTokenUtil.generateToken(userDetails), account.getUsername());
             httpServletResponse.sendRedirect(urlRedirect);
         }catch (Exception e){
             System.out.println(e.getMessage());
         }
-
-//         https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=
-
-
     }
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -252,7 +253,7 @@ public class JwtAuthenticationController  {
         String access_token_url = "https://oauth2.googleapis.com/token";
         access_token_url += "?code=" + code;
         access_token_url += "&grant_type=authorization_code";
-        access_token_url += "&redirect_uri="+ UrlUltils.getUrl()+"/auth/oauth2/code/callback";
+        access_token_url += "&redirect_uri="+ urlUltils.getUrl()+"/auth/oauth2/code/callback";
         access_token_url += "&client_id=947258420566-o8mj2pfqrs96i6mski8k990taa83mt9j.apps.googleusercontent.com";
         access_token_url += "&client_secret=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";
         ResponseEntity<String> response = null;
@@ -271,7 +272,7 @@ public class JwtAuthenticationController  {
             Account activatedAccount = accountRepository.findByUsername(username);
             activatedAccount.setActivate(true);
             accountRepository.save(activatedAccount);
-            httpServletResponse.sendRedirect(UrlUltils.getClientUrl() + "/login");
+            httpServletResponse.sendRedirect(urlUltils.getClientUrl() + "/login");
         } catch (Exception e ) {
             System.out.println(e.getMessage());
         }
@@ -289,7 +290,7 @@ public class JwtAuthenticationController  {
                 public void run() {
                     emailSenderService.sendEmail(account.getEmailAddress(), "Activated your account",
                             "Hello, if you need to activate your account from my application, please click link : " +
-                                    String.format(UrlUltils.getUrl()+ "/api/user/activate/%s", account.getUsername()));
+                                    String.format(urlUltils.getUrl()+ "/api/user/activate/%s", account.getUsername()));
                 }
             });
             threadEmail.start();
