@@ -1,14 +1,21 @@
 package com.example.webadvanced_backend.utils;
 
-public class UrlUltils {
-    static private String url = "https://advancedwebbackend-production-1b23.up.railway.app";
-    static private String clientUrl = "http://localhost:3000";
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
-    //    static private String url = "http://localhost:8080";
-    static public String getUrl(){
+@Component
+public class UrlUltils {
+    @Value("${root-url}")
+    private String url;
+
+    @Value("${client-url}")
+    private String clientUrl;
+
+    public String getUrl(){
         return url;
     }
-    static public String getClientUrl(){
+    public String getClientUrl(){
         return clientUrl;
     }
 }

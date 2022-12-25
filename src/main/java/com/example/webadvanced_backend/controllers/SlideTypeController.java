@@ -29,8 +29,8 @@ public class SlideTypeController {
     ContentRepository contentRepository;
 
     @ResponseBody
-    @GetMapping()
-    ResponseEntity<?> getSlideType(Principal principal, @RequestParam int contentId) {
+    @GetMapping("/{contentId}")
+    ResponseEntity<?> getSlideType(Principal principal, @PathVariable int contentId) {
         try {
             Content currentContent = contentRepository.findById(contentId);
             if (currentContent.getSlideType() == 1) {
