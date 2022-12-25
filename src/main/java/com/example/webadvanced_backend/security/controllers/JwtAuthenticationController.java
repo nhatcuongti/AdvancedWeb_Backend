@@ -37,7 +37,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin
-public class JwtAuthenticationController {
+public class JwtAuthenticationController  {
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -83,7 +83,7 @@ public class JwtAuthenticationController {
             public void run() {
                 emailSenderService.sendEmail(account.getEmailAddress(), "Activated your account",
                         "Hello, if you need to activate your account from my application, please click link : " +
-                                String.format(UrlUltils.getUrl() + "/api/user/activate/%s", account.getUsername()));
+                                String.format(UrlUltils.getUrl() + "/auth/activate/%s", account.getUsername()));
             }
         });
         threadEmail.start();
@@ -121,6 +121,65 @@ public class JwtAuthenticationController {
         return ResponseEntity.ok(
                 new JwtResponse(jwt, userDetails.getUsername())
         );
+    }
+
+    @PostMapping(value = "/forgot-password-event")
+    public ResponseEntity<?> forgotPasswordEvent(@RequestBody AccountDTO accountDTO) throws Exception {
+        // Authenticate user is valid or not
+        String emailAddress;
+        try {
+            emailAddress = accountDTO.getEmailAddress();
+            System.out.println(emailAddress);
+            Account accountByEmail = accountRepository.findByEmailAddress(emailAddress);
+            if (accountByEmail == null) return ResponseEntity.ok("Email address is not exists");
+            Thread threadEmail = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    String bodyMessage = "\n" +
+                            "Hi,\n" +
+                            "\n" +
+                            "You have chosen to reset your password. Please click this link to create a new one: \n" +
+                            "\n" +
+                            String.format(UrlUltils.getClientUrl() + "/reset_password/%s", accountByEmail.getUsername().toString()) +
+                            "\n" +
+                            "If you did not reset your password, please ignore this email. If you have any questions or feedback you can just reply directly to this email.\n" +
+                            "\n" +
+                            "Thanks for using our service!\n" +
+                            "Kind regards, Team";
+                    emailSenderService.sendEmail(accountByEmail.getEmailAddress(), "Inviting mail", bodyMessage);
+                }
+            });
+            threadEmail.start();
+        } catch (Exception e) {
+            String errorMsg = "Account is not activate !!";
+            if (e instanceof AuthenticationException)
+                errorMsg = "Username or password is not correct !!";
+            return ResponseEntity.status(401).body(errorMsg);
+        }
+
+        return ResponseEntity.ok(emailAddress);
+
+    }
+
+    @PostMapping(value = "/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody AccountDTO accountDTO) throws Exception {
+        // Authenticate user is valid or not
+        String emailAddress;
+        String newPassword ;
+        try {
+            emailAddress = accountDTO.getUsername();
+            newPassword = accountDTO.getPassword();
+//            Account accountByEmail = accountRepository.findByEmailAddress(emailAddress);
+//            if (accountByEmail == null) return ResponseEntity.ok("Username is not valid")
+        } catch (Exception e) {
+            String errorMsg = "Account is not activate !!";
+            if (e instanceof AuthenticationException)
+                errorMsg = "Username or password is not correct !!";
+            return ResponseEntity.status(401).body(errorMsg);
+        }
+
+        return ResponseEntity.ok(emailAddress);
+
     }
 
     private void authenticate(String username, String password) throws Exception {
@@ -212,7 +271,7 @@ public class JwtAuthenticationController {
             Account activatedAccount = accountRepository.findByUsername(username);
             activatedAccount.setActivate(true);
             accountRepository.save(activatedAccount);
-            httpServletResponse.sendRedirect("http://localhost:3000/login");
+            httpServletResponse.sendRedirect(UrlUltils.getClientUrl() + "/login");
         } catch (Exception e ) {
             System.out.println(e.getMessage());
         }
