@@ -7,13 +7,19 @@ import com.example.webadvanced_backend.requestentities.DeletePresentationRequest
 import com.example.webadvanced_backend.requestentities.EditPresentationRequest;
 import com.example.webadvanced_backend.requestentities.EditSlideTitleRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionContext;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
 
@@ -125,8 +131,32 @@ public class PresentationController {
             List<Question> listQuestion= questionRepository.findByPresentation(presentation);
             questionRepository.deleteAll(listQuestion);
             //
+
             presentationRepository.delete(presentation);
             return ResponseEntity.ok(presentation);
+        }
+        catch (Exception err){
+            return ResponseEntity.internalServerError().body(err.getMessage());
+        }
+    }
+    @GetMapping(path = "/present1")
+    public ResponseEntity<?> present(HttpServletRequest request, Principal principal){
+        try {
+            HttpSession session = request.getSession();
+            session.setAttribute("user", "hello 123");
+
+            return ResponseEntity.ok(session.getId());
+        }
+        catch (Exception err){
+            return ResponseEntity.internalServerError().body(err.getMessage());
+        }
+    }
+    @GetMapping(path = "/present2")
+    public ResponseEntity<?> present2(HttpServletRequest request){
+        try {
+            HttpSession session = request.getSession();
+            request.getSession().getId();
+            return ResponseEntity.ok((String) session.getAttribute("user"));
         }
         catch (Exception err){
             return ResponseEntity.internalServerError().body(err.getMessage());

@@ -6,8 +6,8 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 public class WebSocketController {
-    @MessageMapping("/addInfoChannel")
-    public void getVote( SimpMessageHeaderAccessor headerAccessor){
+    @MessageMapping("/public-chat/{}")
+    public void sendChatMessage( SimpMessageHeaderAccessor headerAccessor){
 
     }
 }
