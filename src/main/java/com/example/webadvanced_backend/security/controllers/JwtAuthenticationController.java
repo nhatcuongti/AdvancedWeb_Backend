@@ -217,7 +217,7 @@ public class JwtAuthenticationController  {
 
             final UserDetails userDetails = userDetailsService
                     .loadUserByUsername(account.getUsername());
-            String urlRedirect = String.format("http://localhost:3000?access_token=%s&username=%s", jwtTokenUtil.generateToken(userDetails), account.getUsername());
+            String urlRedirect = String.format("%s?access_token=%s&username=%s", UrlUltils.getClientUrl(), jwtTokenUtil.generateToken(userDetails), account.getUsername());
             httpServletResponse.sendRedirect(urlRedirect);
         }catch (Exception e){
             System.out.println(e.getMessage());
