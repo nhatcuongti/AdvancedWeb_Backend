@@ -41,18 +41,24 @@ public class WebSocketEventListener {
 
     }
     @EventListener
-    public void handleWebSocketDisconnectListener(SessionSubscribeEvent event) {
+    public void handleWebSocketSubscribeListener(SessionSubscribeEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         Object channelObject = headerAccessor.getHeader("simpDestination");
-        String channelName = null;
         if(channelObject != null){
             //get topic
-            channelName = channelObject.toString().substring(7);
-            // find specific slide
-            Slide slide = slideRepository.findById(Integer.parseInt(channelName));
-            if (slide.getContent().getSlideType() == 1) {
-                List<ContentMultichoice> multichoiceList = multichoiceRepository.findByContent(slide.getContent());
-                this.simpMessagingTemplate.convertAndSend("/topic/" + channelName, multichoiceList);
+            String [] urlSplit = channelObject.toString().split("/");
+            if(urlSplit[2].equals("slide")) // [2] = topic name
+            {
+                String channelName = urlSplit[3]; // [3] slideId
+                // find specific slide
+                Slide slide = slideRepository.findById(Integer.parseInt(channelName));
+                if (slide.getContent().getSlideType() == 1) {
+                    List<ContentMultichoice> multichoiceList = multichoiceRepository.findByContent(slide.getContent());
+                    this.simpMessagingTemplate.convertAndSend("/topic/" + channelName, multichoiceList);
+                }
+            }
+            else if(urlSplit[2].equals("chatroom")){
+                String preSessionId = urlSplit[3];
             }
         }
     }
