@@ -127,19 +127,4 @@ public class SlideController {
         }
     }
 
-
-    @PostMapping(path = "/4")
-    public ResponseEntity<?> test(@RequestBody VoteMessageRequest request, Principal principal){
-        try {
-
-            // xoa cac slide
-            List<ContentMultichoice> contentMultichoices = multichoiceRepository.findAll();
-            this.simpMessagingTemplate.convertAndSend("/topic/channel11", contentMultichoices);
-            return ResponseEntity.ok("cant not delete");
-
-        }
-        catch (Exception err){
-            return ResponseEntity.internalServerError().body(err.getMessage());
-        }
-    }
 }

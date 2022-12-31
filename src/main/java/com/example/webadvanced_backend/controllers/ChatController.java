@@ -1,6 +1,7 @@
 package com.example.webadvanced_backend.controllers;
 
 import com.example.webadvanced_backend.models.Message;
+import com.example.webadvanced_backend.repositories.MessageRepository;
 import com.example.webadvanced_backend.requestentities.SendMessageRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @Controller
 @RequestMapping(path ="api/v1/chat")
@@ -16,17 +18,30 @@ import java.security.Principal;
 public class ChatController {
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
+    @Autowired
+    MessageRepository messageRepository;
 
-    @PostMapping(path = "/send-message/{preSessionId}")
-     public ResponseEntity<?> sendMessage(@PathVariable String preSessionId, @RequestBody
+    @PostMapping(path = "/send-message/{preId}")
+     public ResponseEntity<?> sendMessage(@PathVariable Integer preId, @RequestBody
             SendMessageRequest request, Principal principal){
         try{
             // 1 get message and user
-            Message message = Message.builder().username(principal.getName()).message(request.getMessage()).build();
+            Message message = Message.builder().username(principal.getName()).message(request.getMessage()).presentationId(preId).build();
             // 2 save message into temporary memory
+            messageRepository.save(message);
             // 3 send to socket
-            simpMessagingTemplate.convertAndSend("/topic/chatroom/" + preSessionId, message);
+            simpMessagingTemplate.convertAndSend("/topic/chatroom/" + preId, message);
             return ResponseEntity.ok("success to send message");
+        }
+        catch (Exception e){
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+    @GetMapping(path = "/load-old-message/{preId}")
+    public ResponseEntity<?> loadOldMessage(@PathVariable Integer preId, Principal principal){
+        try{
+            List<Message> list = messageRepository.findAllByPresentationId(preId);
+            return ResponseEntity.ok(list);
         }
         catch (Exception e){
             return ResponseEntity.internalServerError().body(e.getMessage());

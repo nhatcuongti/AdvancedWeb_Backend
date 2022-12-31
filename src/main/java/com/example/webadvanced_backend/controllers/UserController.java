@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping(path="/api")
@@ -24,6 +25,11 @@ public class UserController {
     @GetMapping(path = "/user")
     public ResponseEntity<?> getUser(HttpServletRequest httpServletRequest) {
         try {
+            HttpSession session = httpServletRequest.getSession();
+            session.setAttribute("username", "nhatks147");
+            session.getAttribute("username");
+            httpServletRequest.getSession().getId();
+
             String username = httpServletRequest.getHeader("username");
             return ResponseEntity.ok(this.accountRepository.findByUsername(username));
         } catch (Exception e ) {

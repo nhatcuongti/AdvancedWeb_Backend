@@ -1,8 +1,10 @@
 package com.example.webadvanced_backend.websocket;
 
 import com.example.webadvanced_backend.models.ContentMultichoice;
+import com.example.webadvanced_backend.models.Message;
 import com.example.webadvanced_backend.models.Slide;
 import com.example.webadvanced_backend.repositories.ContentMultichoiceRepository;
+import com.example.webadvanced_backend.repositories.MessageRepository;
 import com.example.webadvanced_backend.repositories.SlideRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +29,8 @@ public class WebSocketEventListener {
     SlideRepository slideRepository;
     @Autowired
     ContentMultichoiceRepository multichoiceRepository;
-
+    @Autowired
+    MessageRepository messageRepository;
 
 
     @EventListener
@@ -49,16 +52,18 @@ public class WebSocketEventListener {
             String [] urlSplit = channelObject.toString().split("/");
             if(urlSplit[2].equals("slide")) // [2] = topic name
             {
-                String channelName = urlSplit[3]; // [3] slideId
-                // find specific slide
-                Slide slide = slideRepository.findById(Integer.parseInt(channelName));
-                if (slide.getContent().getSlideType() == 1) {
-                    List<ContentMultichoice> multichoiceList = multichoiceRepository.findByContent(slide.getContent());
-                    this.simpMessagingTemplate.convertAndSend("/topic/" + channelName, multichoiceList);
-                }
+//                String channelName = urlSplit[3]; // [3] slideId
+//                // find specific slide
+//                Slide slide = slideRepository.findById(Integer.parseInt(channelName));
+//                if (slide.getContent().getSlideType() == 1) {
+//                    List<ContentMultichoice> multichoiceList = multichoiceRepository.findByContent(slide.getContent());
+//                    this.simpMessagingTemplate.convertAndSend("/topic/slide" + channelName, multichoiceList);
+//                }
             }
             else if(urlSplit[2].equals("chatroom")){
-                String preSessionId = urlSplit[3];
+//                String preId = urlSplit[3];
+//                List<Message> list = messageRepository.findAllByPresentationId(Integer.parseInt(preId));
+//                this.simpMessagingTemplate.convertAndSend("/topic/chatroom/" + preId, list);
             }
         }
     }

@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateQuestionRequest {
-    private int preId;
     private String question;
+    private String createdTime;
 }

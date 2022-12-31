@@ -7,6 +7,7 @@ import com.example.webadvanced_backend.requestentities.DeletePresentationRequest
 import com.example.webadvanced_backend.requestentities.EditPresentationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,8 +36,10 @@ public class QuestionController {
     ContentRepository contentRepository;
     @Autowired
     VoteRepository voteRepository;
+    @Autowired
+    SimpMessagingTemplate simpMessagingTemplate;
 
-    @GetMapping("/{preId}")
+    @GetMapping("/load-old-question/{preId}")
     ResponseEntity<?> getQuestion(@PathVariable int preId){
         try {
             List<Question> listQuestion = questionRepository.findByPresentation(presentationRepository.findById(preId));
@@ -46,12 +49,14 @@ public class QuestionController {
             return ResponseEntity.internalServerError().body(e);
         }
     }
-    @PostMapping(path = "/answer-question/{questionId}")
-    public ResponseEntity<?> answerQuestion(@PathVariable int questionId){
+    @PostMapping(path = "/answer-question/{preId}/{questionId}")
+    public ResponseEntity<?> answerQuestion(@PathVariable int questionId, @PathVariable int preId){
         try {
             Optional<Question> optional = questionRepository.findById(questionId);
             Question question = optional.get();
             question.setIsAnswered(true);
+            Question savedQuestion = questionRepository.save(question);
+            simpMessagingTemplate.convertAndSend("/topic/question/" + preId, savedQuestion);
             return ResponseEntity.ok(questionRepository.save(question));
         }
         catch (Exception err){
@@ -59,16 +64,20 @@ public class QuestionController {
         }
     }
 
-    @PostMapping(path = "/create-question")
-    public ResponseEntity<?> createQuestion(@RequestBody CreateQuestionRequest request) {
+    @PostMapping(path = "/create-question/{preId}")
+    public ResponseEntity<?> createQuestion(@RequestBody CreateQuestionRequest request, @PathVariable int preId) {
         try {
-            Presentation presentation = presentationRepository.findById(request.getPreId());
+            Presentation presentation = presentationRepository.findById(preId);
             Question question = Question.builder()
                     .presentation(presentation)
                     .question(request.getQuestion())
                     .isAnswered(false)
+                    .numberVote(0)
+                    .createdTime(request.getCreatedTime())
                     .build();
-            return ResponseEntity.ok(questionRepository.save(question));
+            Question savedQuestion = questionRepository.save(question);
+            simpMessagingTemplate.convertAndSend("/topic/question/" + preId, savedQuestion);
+            return ResponseEntity.ok(savedQuestion);
         } catch (Exception err) {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }

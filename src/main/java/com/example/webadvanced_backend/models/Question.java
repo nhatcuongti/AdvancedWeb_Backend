@@ -2,6 +2,7 @@ package com.example.webadvanced_backend.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.jmx.export.annotation.ManagedNotifications;
 
@@ -11,6 +12,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Data
 @Table(name = "question")
 public class Question {
     @Id
@@ -18,7 +20,7 @@ public class Question {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "presentation_id")
     private Presentation presentation;
 
@@ -27,6 +29,10 @@ public class Question {
 
     @Column(name = "is_answered")
     private Boolean isAnswered;
+    @Column(name = "created_time")
+    private String createdTime;
+    @Column(name = "number_vote")
+    private Integer numberVote;
 
     public Integer getId() {
         return id;

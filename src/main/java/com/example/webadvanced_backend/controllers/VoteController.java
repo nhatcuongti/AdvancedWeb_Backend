@@ -79,5 +79,18 @@ public class VoteController {
             return ResponseEntity.internalServerError().body(e);
         }
     }
-
+    @GetMapping(path = "/load-old-vote/{slideId}")
+    public ResponseEntity<?> test(@PathVariable int slideId, Principal principal){
+        try {
+            Slide slide = slideRepository.findById(slideId);
+            if (slide.getContent().getSlideType() == 1) {
+                List<ContentMultichoice> multichoiceList = multichoiceRepository.findByContent(slide.getContent());
+                return ResponseEntity.ok(multichoiceList);
+            }
+            return ResponseEntity.ok("slide type is not multichoice");
+        }
+        catch (Exception err){
+            return ResponseEntity.internalServerError().body(err.getMessage());
+        }
+    }
 }
