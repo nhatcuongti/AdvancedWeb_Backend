@@ -17,7 +17,7 @@ public class ContentHeading {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "content_id")
     private Content content;
 
@@ -58,5 +58,7 @@ public class ContentHeading {
     public void setSubHeading(String subHeading) {
         this.subHeading = subHeading;
     }
+
+
 
 }

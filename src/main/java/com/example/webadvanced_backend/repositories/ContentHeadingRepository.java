@@ -7,8 +7,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
+
 @Repository
 public interface ContentHeadingRepository extends JpaRepository<ContentHeading, Integer> {
     List<ContentHeading> findByContent(Content content);
-    ContentHeading findById(int id);
+
+    @Override
+    Optional<ContentHeading> findById(Integer integer);
 }

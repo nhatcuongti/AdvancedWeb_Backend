@@ -36,15 +36,28 @@ public class SlideTypeController {
             if (currentContent.getSlideType() == 1) {
                 List<ContentMultichoice> list = null;
                 list = multichoiceRepository.findByContent(currentContent);
-                return ResponseEntity.ok(list);
+                ContentMultichoiceDTO contentMultichoiceDTO = new ContentMultichoiceDTO();
+                contentMultichoiceDTO.setContent(currentContent);
+                contentMultichoiceDTO.setListContentMultipleChoice(list);
+                return ResponseEntity.ok(contentMultichoiceDTO);
             } else if (currentContent.getSlideType() == 2) {
                 List<ContentParagraph> list = null;
                 list = paragraphRepository.findByContent(currentContent);
-                return ResponseEntity.ok(list);
+                ContentParagraphDTO contentParagraphDTO = new ContentParagraphDTO();
+                contentParagraphDTO.setContent(currentContent);
+                contentParagraphDTO.setHeading(list.get(0).getHeading());
+                contentParagraphDTO.setParagraph(list.get(0).getParagraph());
+                contentParagraphDTO.setSlideTypeId(list.get(0).getId());
+                return ResponseEntity.ok(contentParagraphDTO);
             } else if (currentContent.getSlideType() == 3) {
                 List<ContentHeading> list = null;
                 list = headingRepository.findByContent(currentContent);
-                return ResponseEntity.ok(list);
+                ContentHeadingDTO contentHeadingDTO = new ContentHeadingDTO();
+                contentHeadingDTO.setContent(currentContent);
+                contentHeadingDTO.setHeading(list.get(0).getHeading());
+                contentHeadingDTO.setSubheading(list.get(0).getSubHeading());
+                contentHeadingDTO.setSlideTypeId(list.get(0).getId());
+                return ResponseEntity.ok(contentHeadingDTO);
             } else {
                 return ResponseEntity.ok(new ArrayList<>());
             }
@@ -57,9 +70,10 @@ public class SlideTypeController {
     public ResponseEntity<?> createAMChoiceOption(@RequestBody CreateMChoiceOptionRequest request, Principal principal) {
         try {
             Content content = contentRepository.findById(request.getContentId());
-            if (content.getSlideType() == 0) {
-                content.setSlideType(1);
-            }
+            content.setSlideType(1);
+            if (request.getOptionName() == null)
+                return ResponseEntity.ok(contentRepository.save(content));
+
             COption option = COption.builder().name(request.getOptionName()).numberVote(0).build();
             ContentMultichoice multichoice = ContentMultichoice.builder().content(content).option(option).build();
             return ResponseEntity.ok(multichoiceRepository.save(multichoice));
@@ -72,9 +86,8 @@ public class SlideTypeController {
     public ResponseEntity<?> createParagraph(@RequestBody CreateParagraphRequest request, Principal principal) {
         try {
             Content content = contentRepository.findById(request.getContentId());
-            if (content.getSlideType() == 0) {
-                content.setSlideType(2);
-            }
+            content.setSlideType(2);
+
             ContentParagraph paragraph = ContentParagraph.builder()
                     .heading(request.getHeading())
                     .content(content)
@@ -90,9 +103,7 @@ public class SlideTypeController {
     public ResponseEntity<?> createHeading(@RequestBody CreateHeadingRequest request, Principal principal) {
         try {
             Content content = contentRepository.findById(request.getContentId());
-            if (content.getSlideType() == 0) {
-                content.setSlideType(3);
-            }
+            content.setSlideType(3);
             ContentHeading heading = ContentHeading.builder()
                     .heading(request.getHeading())
                     .content(content)
@@ -114,6 +125,20 @@ public class SlideTypeController {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
     }
+
+//    @PostMapping(path = "/edit")
+//    public ResponseEntity<?> editSlideType(@RequestBody EditSlideTypeRequest request) {
+//        try {
+//            Content content = contentRepository.findById(request.getContentId());
+//            content.setSlideType(request.getSlideType());
+//
+//            // Heading
+//            return ResponseEntity.ok(contentRepository.save(content));
+//        } catch (Exception err) {
+//            return ResponseEntity.internalServerError().body(err.getMessage());
+//        }
+//    }
+
 
     @PostMapping(path = "/edit-multiple-choice")
     public ResponseEntity<?> editMultipleChoice(@RequestBody EditOptionNameRequest request, Principal principal) {
@@ -148,7 +173,7 @@ public class SlideTypeController {
     public ResponseEntity<?> editContentHeading(@RequestBody EditHeadingRequest request, Principal principal) {
         try {
             // tim list slide
-            ContentHeading heading = headingRepository.findById(request.getSlideTypeId());
+            ContentHeading heading = headingRepository.findById(request.getSlideTypeId()).get();
             heading.setSubHeading(request.getSubHeading());
             heading.setHeading(request.getHeading());
             return ResponseEntity.ok(headingRepository.save(heading));

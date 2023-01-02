@@ -7,33 +7,13 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Builder
-@Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "content_paragraph")
-public class ContentParagraph {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Integer id;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "content_id")
+public class ContentParagraphDTO {
     private Content content;
-
-    @Column(name = "heading", length = 500)
     private String heading;
-
-    @Column(name = "paragraph", length = 500)
     private String paragraph;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    private int slideTypeId;
 
     public Content getContent() {
         return content;
@@ -59,4 +39,11 @@ public class ContentParagraph {
         this.paragraph = paragraph;
     }
 
+    public int getSlideTypeId() {
+        return slideTypeId;
+    }
+
+    public void setSlideTypeId(int slideTypeId) {
+        this.slideTypeId = slideTypeId;
+    }
 }
