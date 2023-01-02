@@ -63,6 +63,20 @@ public class QuestionController {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
     }
+    @PostMapping(path = "/upvote-question/{preId}/{questionId}")
+    public ResponseEntity<?> upVote(@PathVariable int questionId, @PathVariable int preId){
+        try {
+            Optional<Question> optional = questionRepository.findById(questionId);
+            Question question = optional.get();
+            question.setNumberVote(question.getNumberVote() + 1);
+            Question savedQuestion = questionRepository.save(question);
+            simpMessagingTemplate.convertAndSend("/topic/question/" + preId, savedQuestion);
+            return ResponseEntity.ok(questionRepository.save(question));
+        }
+        catch (Exception err){
+            return ResponseEntity.internalServerError().body(err.getMessage());
+        }
+    }
 
     @PostMapping(path = "/create-question/{preId}")
     public ResponseEntity<?> createQuestion(@RequestBody CreateQuestionRequest request, @PathVariable int preId) {

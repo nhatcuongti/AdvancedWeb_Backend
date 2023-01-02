@@ -52,13 +52,13 @@ public class WebSocketEventListener {
             String [] urlSplit = channelObject.toString().split("/");
             if(urlSplit[2].equals("slide")) // [2] = topic name
             {
-//                String channelName = urlSplit[3]; // [3] slideId
-//                // find specific slide
-//                Slide slide = slideRepository.findById(Integer.parseInt(channelName));
-//                if (slide.getContent().getSlideType() == 1) {
-//                    List<ContentMultichoice> multichoiceList = multichoiceRepository.findByContent(slide.getContent());
-//                    this.simpMessagingTemplate.convertAndSend("/topic/slide" + channelName, multichoiceList);
-//                }
+                String channelName = urlSplit[3]; // [3] slideId
+                // find specific slide
+                Slide slide = slideRepository.findById(Integer.parseInt(channelName));
+                if (slide.getContent().getSlideType() == 1) {
+                    List<ContentMultichoice> multichoiceList = multichoiceRepository.findByContent(slide.getContent());
+                    this.simpMessagingTemplate.convertAndSend("/topic/slide" + channelName, multichoiceList);
+                }
             }
             else if(urlSplit[2].equals("chatroom")){
 //                String preId = urlSplit[3];
