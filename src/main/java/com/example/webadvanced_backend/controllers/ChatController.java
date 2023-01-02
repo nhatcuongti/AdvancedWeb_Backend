@@ -26,7 +26,7 @@ public class ChatController {
             SendMessageRequest request, Principal principal){
         try{
             // 1 get message and user
-            Message message = Message.builder().username(principal.getName()).message(request.getMessage()).presentationId(preId).build();
+            Message message = Message.builder().username(principal.getName()).message(request.getMessage()).presentationGroupId(preId).build();
             // 2 save message into temporary memory
             messageRepository.save(message);
             // 3 send to socket
@@ -40,7 +40,7 @@ public class ChatController {
     @GetMapping(path = "/load-old-message/{preId}")
     public ResponseEntity<?> loadOldMessage(@PathVariable Integer preId, Principal principal){
         try{
-            List<Message> list = messageRepository.findAllByPresentationId(preId);
+            List<Message> list = messageRepository.findAllByPresentationGroupId(preId);
             return ResponseEntity.ok(list);
         }
         catch (Exception e){

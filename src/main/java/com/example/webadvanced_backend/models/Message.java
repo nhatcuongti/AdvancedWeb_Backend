@@ -9,7 +9,6 @@ import javax.persistence.*;
 
 @Entity
 @Builder
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "message")
@@ -25,8 +24,8 @@ public class Message {
     @Column(name = "message", length = 500)
     private String message;
 
-    @Column(name = "presentation_id")
-    private Integer presentationId;
+    @Column(name = "presentation_group_id")
+    private Integer presentationGroupId;
 
     public Integer getId() {
         return id;
@@ -52,12 +51,11 @@ public class Message {
         this.message = message;
     }
 
-    public Integer getPresentationId() {
-        return presentationId;
+    public Integer getPresentationGroupId() {
+        return presentationGroupId;
     }
 
-    public void setPresentationId(Integer presentationId) {
-        this.presentationId = presentationId;
+    public void setPresentationGroupId(Integer presentationGroupId) {
+        this.presentationGroupId = presentationGroupId;
     }
-
 }

@@ -40,6 +40,8 @@ public class PresentationController {
     ContentRepository contentRepository;
     @Autowired
     VoteRepository voteRepository;
+    @Autowired
+    PresentationGroupRepository presentationGroupRepository;
 
     @GetMapping()
     ResponseEntity<?> getPresentationList(Principal principal){
@@ -122,9 +124,16 @@ public class PresentationController {
                 paragraphRepository.deleteAll(listParagraph);
             // xoa cac slide
             slideRepository.deleteAll(listSlide);
-            //xoa question
-            List<Question> listQuestion= questionRepository.findByPresentation(presentation);
-            questionRepository.deleteAll(listQuestion);
+            //xoa presentation_group
+            List<PresentationGroup> listPresentationGroup = presentationGroupRepository.findByPresentation(presentation);
+            for (PresentationGroup pg: listPresentationGroup) {
+                List<Question> listQuestion= questionRepository.findByPresentationGroup(pg);
+                //xoa cac question cua tung session
+                questionRepository.deleteAll(listQuestion);
+            }
+            //xoa session
+            presentationGroupRepository.deleteAll(listPresentationGroup);
+
             //
 
             presentationRepository.delete(presentation);

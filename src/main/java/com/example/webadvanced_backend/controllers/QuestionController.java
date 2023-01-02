@@ -38,11 +38,13 @@ public class QuestionController {
     VoteRepository voteRepository;
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
+    @Autowired
+    PresentationGroupRepository presentationGroupRepository;
 
     @GetMapping("/load-old-question/{preId}")
     ResponseEntity<?> getQuestion(@PathVariable int preId){
         try {
-            List<Question> listQuestion = questionRepository.findByPresentation(presentationRepository.findById(preId));
+            List<Question> listQuestion = questionRepository.findByPresentationGroup(presentationGroupRepository.findById(preId));
             return ResponseEntity.ok(listQuestion);
         }
         catch (Exception e){
@@ -78,12 +80,12 @@ public class QuestionController {
         }
     }
 
-    @PostMapping(path = "/create-question/{preId}")
+    @PostMapping(path = "/create- /{preId}")
     public ResponseEntity<?> createQuestion(@RequestBody CreateQuestionRequest request, @PathVariable int preId) {
         try {
-            Presentation presentation = presentationRepository.findById(preId);
+            PresentationGroup presentationGroup = presentationGroupRepository.findById(preId);
             Question question = Question.builder()
-                    .presentation(presentation)
+                    .presentationGroup(presentationGroup)
                     .question(request.getQuestion())
                     .isAnswered(false)
                     .numberVote(0)

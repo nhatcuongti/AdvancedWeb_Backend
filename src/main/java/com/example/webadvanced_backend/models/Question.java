@@ -2,9 +2,7 @@ package com.example.webadvanced_backend.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.jmx.export.annotation.ManagedNotifications;
 
 import javax.persistence.*;
 
@@ -12,7 +10,6 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Data
 @Table(name = "question")
 public class Question {
     @Id
@@ -21,8 +18,8 @@ public class Question {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "presentation_id")
-    private Presentation presentation;
+    @JoinColumn(name = "presentation_group_id")
+    private PresentationGroup presentationGroup;
 
     @Column(name = "question", length = 500)
     private String question;
@@ -42,12 +39,20 @@ public class Question {
         this.id = id;
     }
 
-    public Presentation getPresentation() {
-        return presentation;
+    public PresentationGroup getPresentationGroup() {
+        return presentationGroup;
     }
 
-    public void setPresentation(Presentation presentation) {
-        this.presentation = presentation;
+    public void setPresentationGroup(PresentationGroup presentationGroupId) {
+        this.presentationGroup = presentationGroupId;
+    }
+
+    public Integer getNumberVote() {
+        return numberVote;
+    }
+
+    public void setNumberVote(Integer numberVote) {
+        this.numberVote = numberVote;
     }
 
     public String getQuestion() {
