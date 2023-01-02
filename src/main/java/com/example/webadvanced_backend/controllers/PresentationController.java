@@ -5,9 +5,7 @@ import com.example.webadvanced_backend.requestentities.CreatePresentationRequest
 import com.example.webadvanced_backend.models.*;
 import com.example.webadvanced_backend.requestentities.DeletePresentationRequest;
 import com.example.webadvanced_backend.requestentities.EditPresentationRequest;
-import com.example.webadvanced_backend.requestentities.EditSlideTitleRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -15,12 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionContext;
 import java.security.Principal;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
