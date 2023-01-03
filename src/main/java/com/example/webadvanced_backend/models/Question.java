@@ -47,6 +47,22 @@ public class Question {
         this.presentationGroup = presentationGroupId;
     }
 
+    public Boolean getAnswered() {
+        return isAnswered;
+    }
+
+    public void setAnswered(Boolean answered) {
+        isAnswered = answered;
+    }
+
+    public String getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(String createdTime) {
+        this.createdTime = createdTime;
+    }
+
     public Integer getNumberVote() {
         return numberVote;
     }

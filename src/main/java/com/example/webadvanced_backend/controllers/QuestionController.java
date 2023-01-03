@@ -80,7 +80,7 @@ public class QuestionController {
         }
     }
 
-    @PostMapping(path = "/create- /{preId}")
+    @PostMapping(path = "/create-question/{preId}")
     public ResponseEntity<?> createQuestion(@RequestBody CreateQuestionRequest request, @PathVariable int preId) {
         try {
             PresentationGroup presentationGroup = presentationGroupRepository.findById(preId);

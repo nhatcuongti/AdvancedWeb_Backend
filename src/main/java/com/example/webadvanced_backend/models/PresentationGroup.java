@@ -53,12 +53,12 @@ public class PresentationGroup {
         this.groupId = groupId;
     }
 
-    public Boolean getPresenting() {
-        return isPresenting;
+    public Boolean getIsPresenting() {
+        return this.isPresenting;
     }
 
-    public void setPresenting(Boolean presenting) {
-        isPresenting = presenting;
+    public void setIsPresenting(Boolean isPresenting) {
+        this.isPresenting = isPresenting;
     }
 
 
