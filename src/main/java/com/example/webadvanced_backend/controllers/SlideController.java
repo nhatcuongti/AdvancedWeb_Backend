@@ -24,6 +24,9 @@ import java.util.Optional;
 public class SlideController {
     @Autowired
     PresentationRepository presentationRepository;
+
+    @Autowired
+    AccountRepository accountRepository;
     @Autowired
     SlideRepository slideRepository;
     @Autowired
@@ -42,6 +45,9 @@ public class SlideController {
     ResponseEntity<?> getSlideList(Principal principal, @PathVariable String preId) {
         try {
             Presentation presentation = presentationRepository.findById(Integer.parseInt(preId));
+            Account account = accountRepository.findByUsername(principal.getName());
+            if (account.getId() != presentation.getUser().getId())
+                return ResponseEntity.status(403).body("User is not privilege to do this action");
             if (principal.getName().equals(presentation.getUser().getUsername())) {
                 List<Slide> list = slideRepository.findByPresentation(presentation);
                 return ResponseEntity.ok(list);

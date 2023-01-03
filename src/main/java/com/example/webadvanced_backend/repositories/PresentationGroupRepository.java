@@ -8,6 +8,5 @@ import java.util.List;
 
 public interface PresentationGroupRepository extends JpaRepository<PresentationGroup, Integer> {
     PresentationGroup findById(int preId);
-
     List<PresentationGroup> findByPresentation(Presentation presentation);
 }

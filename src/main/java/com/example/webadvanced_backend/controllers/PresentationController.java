@@ -5,6 +5,7 @@ import com.example.webadvanced_backend.requestentities.CreatePresentationRequest
 import com.example.webadvanced_backend.models.*;
 import com.example.webadvanced_backend.requestentities.DeletePresentationRequest;
 import com.example.webadvanced_backend.requestentities.EditPresentationRequest;
+import com.example.webadvanced_backend.requestentities.PresentForGroupRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -54,6 +55,17 @@ public class PresentationController {
             return ResponseEntity.internalServerError().body(e);
         }
     }
+
+    @GetMapping("/presenting/{presentingId}")
+    ResponseEntity<?> getPresenting(Principal principal, @PathVariable() int presentingId){
+        try {
+            PresentationGroup presentationGroup = presentationGroupRepository.findById(presentingId);
+            return ResponseEntity.ok(presentationGroup);
+        }
+        catch (Exception e){
+            return ResponseEntity.internalServerError().body(e);
+        }
+    }
     @PostMapping(path = "/add")
     public ResponseEntity<?> createAPresentation(@RequestBody CreatePresentationRequest request, Principal principal){
         try {
@@ -63,6 +75,31 @@ public class PresentationController {
                     .createdTime( request.getCreatedTime())
                     .build();
             return ResponseEntity.ok(presentationRepository.save(presentation));
+        }
+        catch (Exception err){
+            return ResponseEntity.internalServerError().body(err.getMessage());
+        }
+    }
+
+    @PostMapping(path = "/present-for-group")
+    public ResponseEntity<?> presentForGroup(@RequestBody PresentForGroupRequest request, Principal principal){
+        try {
+            Presentation presentation = presentationRepository.findById(request.getPresentationId());
+            PresentationGroup presentationGroup = PresentationGroup.builder()
+                    .groupId(request.getGroupId()).isPresenting(true).presentation(presentation).build();
+            return ResponseEntity.ok(presentationGroupRepository.save(presentationGroup));
+        }
+        catch (Exception err){
+            return ResponseEntity.internalServerError().body(err.getMessage());
+        }
+    }
+
+    @PostMapping(path = "/stop-present-for-group")
+    public ResponseEntity<?> stopPresentForGroup(@RequestBody PresentForGroupRequest request, Principal principal){
+        try {
+            PresentationGroup presentationGroup = presentationGroupRepository.findById(request.getPresentingId());
+            presentationGroup.setIsPresenting(false);
+            return ResponseEntity.ok(presentationGroupRepository.save(presentationGroup));
         }
         catch (Exception err){
             return ResponseEntity.internalServerError().body(err.getMessage());
@@ -79,9 +116,7 @@ public class PresentationController {
         } catch (Exception err) {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
-
     }
-
 
     @PostMapping(path = "/delete")
     public ResponseEntity<?> deletePresentation(@RequestBody DeletePresentationRequest request, Principal principal){
@@ -143,6 +178,8 @@ public class PresentationController {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
     }
+
+
     @GetMapping(path = "/present1")
     public ResponseEntity<?> present(HttpServletRequest request, Principal principal){
         try {
