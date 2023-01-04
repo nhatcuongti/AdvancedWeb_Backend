@@ -8,6 +8,7 @@ import com.example.webadvanced_backend.requestentities.EditPresentationRequest;
 import com.example.webadvanced_backend.requestentities.PresentForGroupRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,65 +44,65 @@ public class PresentationController {
     VoteRepository voteRepository;
     @Autowired
     PresentationGroupRepository presentationGroupRepository;
+    @Autowired
+    SimpMessagingTemplate simpMessagingTemplate;
 
     @GetMapping()
-    ResponseEntity<?> getPresentationList(Principal principal){
+    ResponseEntity<?> getPresentationList(Principal principal) {
         try {
             Account currentUser = accountRepository.findByUsername(principal.getName());
             List<Presentation> listPresentation = presentationRepository.findByUser(currentUser);
             return ResponseEntity.ok(listPresentation);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e);
         }
     }
 
     @GetMapping("/presenting/{presentingId}")
-    ResponseEntity<?> getPresenting(Principal principal, @PathVariable() int presentingId){
+    ResponseEntity<?> getPresenting(Principal principal, @PathVariable() int presentingId) {
         try {
             PresentationGroup presentationGroup = presentationGroupRepository.findById(presentingId);
             return ResponseEntity.ok(presentationGroup);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e);
         }
     }
+
     @PostMapping(path = "/add")
-    public ResponseEntity<?> createAPresentation(@RequestBody CreatePresentationRequest request, Principal principal){
+    public ResponseEntity<?> createAPresentation(@RequestBody CreatePresentationRequest request, Principal principal) {
         try {
             Presentation presentation;
             presentation = Presentation.builder().name(request.getPresentationName())
                     .user(accountRepository.findByUsername(principal.getName()))
-                    .createdTime( request.getCreatedTime())
+                    .createdTime(request.getCreatedTime())
                     .build();
             return ResponseEntity.ok(presentationRepository.save(presentation));
-        }
-        catch (Exception err){
+        } catch (Exception err) {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
     }
 
     @PostMapping(path = "/present-for-group")
-    public ResponseEntity<?> presentForGroup(@RequestBody PresentForGroupRequest request, Principal principal){
+    public ResponseEntity<?> presentForGroup(@RequestBody PresentForGroupRequest request, Principal principal) {
         try {
             Presentation presentation = presentationRepository.findById(request.getPresentationId());
             PresentationGroup presentationGroup = PresentationGroup.builder()
                     .groupId(request.getGroupId()).isPresenting(true).presentation(presentation).build();
+            simpMessagingTemplate.convertAndSend("/topic/notification/" + request.getGroupId(), true);
             return ResponseEntity.ok(presentationGroupRepository.save(presentationGroup));
-        }
-        catch (Exception err){
+        } catch (Exception err) {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
     }
 
     @PostMapping(path = "/stop-present-for-group")
-    public ResponseEntity<?> stopPresentForGroup(@RequestBody PresentForGroupRequest request, Principal principal){
+    public ResponseEntity<?> stopPresentForGroup(@RequestBody PresentForGroupRequest request, Principal principal) {
         try {
             PresentationGroup presentationGroup = presentationGroupRepository.findById(request.getPresentingId());
             presentationGroup.setIsPresenting(false);
+            simpMessagingTemplate.convertAndSend("/topic/notification/" + presentationGroup.getGroupId(), false);
             return ResponseEntity.ok(presentationGroupRepository.save(presentationGroup));
-        }
-        catch (Exception err){
+        } catch (Exception err) {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
     }
@@ -119,15 +120,15 @@ public class PresentationController {
     }
 
     @PostMapping(path = "/delete")
-    public ResponseEntity<?> deletePresentation(@RequestBody DeletePresentationRequest request, Principal principal){
+    public ResponseEntity<?> deletePresentation(@RequestBody DeletePresentationRequest request, Principal principal) {
         try {
             Presentation presentation = presentationRepository.findById(request.getPreId());
             // tim list slide
             List<Slide> listSlide = slideRepository.findByPresentation(presentation);
             // tim cac content id cua cac slide
             List<Integer> listContentId = new ArrayList<>();
-            for (Slide s: listSlide) {
-                   listContentId.add(s.getContent().getId());
+            for (Slide s : listSlide) {
+                listContentId.add(s.getContent().getId());
             }
             //tim cac list content
             List<Content> listContent = contentRepository.findAllById(listContentId);
@@ -135,34 +136,34 @@ public class PresentationController {
             List<ContentMultichoice> listMultichoice = new ArrayList<>();
             List<ContentParagraph> listParagraph = new ArrayList<>();
             List<ContentHeading> listHeading = new ArrayList<>();
-            for(Content c: listContent ){
-                if(c.getSlideType() == 1)
+            for (Content c : listContent) {
+                if (c.getSlideType() == 1)
                     listMultichoice.addAll(multichoiceRepository.findByContent(c));
-                else if(c.getSlideType() == 2)
+                else if (c.getSlideType() == 2)
                     listParagraph.addAll(paragraphRepository.findByContent(c));
-                else if(c.getSlideType() == 3)
+                else if (c.getSlideType() == 3)
                     listHeading.addAll(headingRepository.findByContent(c));
             }
-            if(!listMultichoice.isEmpty()){
+            if (!listMultichoice.isEmpty()) {
                 //delete votes of each option
                 List<Vote> listVote = new ArrayList<>();
-                for(ContentMultichoice m : listMultichoice){
+                for (ContentMultichoice m : listMultichoice) {
                     listVote.addAll(voteRepository.findByOption(m.getOption()));
                 }
                 voteRepository.deleteAll(listVote);
                 multichoiceRepository.deleteAll(listMultichoice);
 
             }
-            if(!listParagraph.isEmpty())
+            if (!listParagraph.isEmpty())
                 headingRepository.deleteAll(listHeading);
-            if(!listParagraph.isEmpty())
+            if (!listParagraph.isEmpty())
                 paragraphRepository.deleteAll(listParagraph);
             // xoa cac slide
             slideRepository.deleteAll(listSlide);
             //xoa presentation_group
             List<PresentationGroup> listPresentationGroup = presentationGroupRepository.findByPresentation(presentation);
-            for (PresentationGroup pg: listPresentationGroup) {
-                List<Question> listQuestion= questionRepository.findByPresentationGroup(pg);
+            for (PresentationGroup pg : listPresentationGroup) {
+                List<Question> listQuestion = questionRepository.findByPresentationGroup(pg);
                 //xoa cac question cua tung session
                 questionRepository.deleteAll(listQuestion);
             }
@@ -173,34 +174,10 @@ public class PresentationController {
 
             presentationRepository.delete(presentation);
             return ResponseEntity.ok(presentation);
-        }
-        catch (Exception err){
+        } catch (Exception err) {
             return ResponseEntity.internalServerError().body(err.getMessage());
         }
     }
 
 
-    @GetMapping(path = "/present1")
-    public ResponseEntity<?> present(HttpServletRequest request, Principal principal){
-        try {
-            HttpSession session = request.getSession();
-            session.setAttribute("user", "hello 123");
-
-            return ResponseEntity.ok(session.getId());
-        }
-        catch (Exception err){
-            return ResponseEntity.internalServerError().body(err.getMessage());
-        }
-    }
-    @GetMapping(path = "/present2")
-    public ResponseEntity<?> present2(HttpServletRequest request){
-        try {
-            HttpSession session = request.getSession();
-            request.getSession().getId();
-            return ResponseEntity.ok((String) session.getAttribute("user"));
-        }
-        catch (Exception err){
-            return ResponseEntity.internalServerError().body(err.getMessage());
-        }
-    }
 }
