@@ -55,7 +55,8 @@ public class QuestionController {
             GroupInfo groupInfo = groupRepository.findById((int)preSession.getGroupId());
             UserGroup userGroup = userGroupRepository.findByUserAndGroup(currentUser,groupInfo);
             Boolean isOwner = true;
-            if(userGroup.getRoleUserInGroup().equals("ROLE_MEMBER"))
+            String role = String.valueOf(userGroup.getRoleUserInGroup());
+            if(role.equals("ROLE_MEMBER"))
                 isOwner = false;
             return ResponseEntity.ok(new ResponseLoadQuestion(listQuestion,isOwner));
         }
@@ -93,8 +94,9 @@ public class QuestionController {
     }
 
     @PostMapping(path = "/create-question/{preId}")
-    public ResponseEntity<?> createQuestion(@RequestBody CreateQuestionRequest request, @PathVariable int preId) {
+    public ResponseEntity<?> createQuestion(@RequestBody CreateQuestionRequest request, @PathVariable int preId, Principal principal) {
         try {
+            Account account = accountRepository.findByUsername(principal.getName());
             PresentationGroup presentationGroup = presentationGroupRepository.findById(preId);
             Question question = Question.builder()
                     .presentationGroup(presentationGroup)
@@ -102,6 +104,7 @@ public class QuestionController {
                     .isAnswered(false)
                     .numberVote(0)
                     .createdTime(request.getCreatedTime())
+                    .fullName(account.getFullName())
                     .build();
             Question savedQuestion = questionRepository.save(question);
             simpMessagingTemplate.convertAndSend("/topic/question/" + preId, savedQuestion);

@@ -24,6 +24,17 @@ public class Question {
     @Column(name = "question", length = 500)
     private String question;
 
+    @Column(name = "full_name")
+    private String fullName;
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
     @Column(name = "is_answered")
     private Boolean isAnswered;
     @Column(name = "created_time")
