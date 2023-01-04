@@ -11,6 +11,7 @@ import java.util.Optional;
 @Repository
 public interface ContentMultichoiceRepository extends JpaRepository<ContentMultichoice, Integer> {
     List<ContentMultichoice> findByContent(Content content);
+
     ContentMultichoice findById(int id);
 
 }

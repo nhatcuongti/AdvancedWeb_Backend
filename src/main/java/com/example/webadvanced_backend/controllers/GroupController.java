@@ -1,5 +1,6 @@
 package com.example.webadvanced_backend.controllers;
 
+import com.example.webadvanced_backend.repositories.PresentationGroupRepository;
 import com.example.webadvanced_backend.requestentities.CreateGroupRequest;
 import com.example.webadvanced_backend.models.*;
 import com.example.webadvanced_backend.repositories.AccountRepository;
@@ -25,6 +26,9 @@ public class GroupController {
     private UserGroupRepository userGroupRepository;
     @Autowired
     private AccountRepository accountRepository;
+
+    @Autowired
+    private PresentationGroupRepository presentationGroupRepository;
     @Autowired
     private GroupRepository groupRepository;
     @Autowired

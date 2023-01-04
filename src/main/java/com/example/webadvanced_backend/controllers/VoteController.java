@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @CrossOrigin
@@ -60,7 +61,7 @@ public class VoteController {
                     return null;
                 }
                 List<ContentMultichoice> resultList = multichoiceRepository.findByContent(slide.getContent());
-                simpMessagingTemplate.convertAndSend("/topic/" + request.getSlideId(), resultList);
+                simpMessagingTemplate.convertAndSend("/topic/slide/" + request.getSlideId(), resultList);
                 return ResponseEntity.ok(vote);
             }
             return null;
@@ -88,6 +89,25 @@ public class VoteController {
                 return ResponseEntity.ok(multichoiceList);
             }
             return ResponseEntity.ok("slide type is not multichoice");
+        }
+        catch (Exception err){
+            return ResponseEntity.internalServerError().body(err.getMessage());
+        }
+    }
+
+    @Autowired
+    ContentMultichoiceRepository contentMultichoiceRepository;
+    @GetMapping(path = "/load-voting-list/{slideId}")
+    public ResponseEntity<?> loadVotingList(@PathVariable int slideId, Principal principal){
+        try {
+            List<Vote> listVoting = voteRepository.findAll();
+            Slide slide = slideRepository.findById(slideId);
+            List<ContentMultichoice> contentMultichoices = contentMultichoiceRepository.findByContent(slide.getContent());
+            List<Integer> listOptionId = contentMultichoices.stream().map(contentElement -> contentElement.getOption().getId()).collect(Collectors.toList());
+
+            return ResponseEntity.ok(
+                    listVoting.stream().filter(voting -> listOptionId.contains(voting.getOption().getId()))
+            );
         }
         catch (Exception err){
             return ResponseEntity.internalServerError().body(err.getMessage());

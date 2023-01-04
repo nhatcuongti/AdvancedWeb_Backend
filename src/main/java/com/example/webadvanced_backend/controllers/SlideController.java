@@ -42,13 +42,14 @@ public class SlideController {
 
     @ResponseBody
     @GetMapping("/{preId}")
-    ResponseEntity<?> getSlideList(Principal principal, @PathVariable String preId) {
+    ResponseEntity<?> getSlideList(Principal principal, @PathVariable String preId,
+                                   @RequestParam(value = "guest", required = false, defaultValue = "false") boolean isGuest) {
         try {
             Presentation presentation = presentationRepository.findById(Integer.parseInt(preId));
             Account account = accountRepository.findByUsername(principal.getName());
-            if (account.getId() != presentation.getUser().getId())
+            if (account.getId() != presentation.getUser().getId() && !isGuest)
                 return ResponseEntity.status(403).body("User is not privilege to do this action");
-            if (principal.getName().equals(presentation.getUser().getUsername())) {
+            if (principal.getName().equals(presentation.getUser().getUsername()) || isGuest) {
                 List<Slide> list = slideRepository.findByPresentation(presentation);
                 return ResponseEntity.ok(list);
             } else {

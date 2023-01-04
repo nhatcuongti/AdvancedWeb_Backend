@@ -29,6 +29,9 @@ public class PresentationGroup {
     @Column(name = "is_presenting")
     private Boolean isPresenting;
 
+    @Column(name = "current_slide_index")
+    private Integer currentSlideIndex;
+
     public Integer getId() {
         return id;
     }
@@ -61,8 +64,19 @@ public class PresentationGroup {
         this.isPresenting = isPresenting;
     }
 
+    public Boolean getPresenting() {
+        return isPresenting;
+    }
 
+    public void setPresenting(Boolean presenting) {
+        isPresenting = presenting;
+    }
 
+    public Integer getCurrentSlideIndex() {
+        return currentSlideIndex;
+    }
 
-
+    public void setCurrentSlideIndex(Integer currentSlideIndex) {
+        this.currentSlideIndex = currentSlideIndex;
+    }
 }
