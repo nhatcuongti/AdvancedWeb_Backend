@@ -182,6 +182,19 @@ public class GroupController {
 
     }
 
+    @GetMapping(path = "/check-user-group/{username}/{groupId}")
+    public ResponseEntity<?> checkUserInGroup(@PathVariable String username, @PathVariable Integer groupId) {
+        try{
+            Account user = accountRepository.findByUsername(username);
+            GroupInfo group = groupRepository.findById(groupId).get();
+            UserGroup userGroup = userGroupRepository.findByUserAndGroup(user, group);
+            return ResponseEntity.ok(userGroup);
+        }
+        catch (Exception e){
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
 }
 
 

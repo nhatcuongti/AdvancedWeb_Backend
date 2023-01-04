@@ -39,6 +39,10 @@ public class SlideController {
     ContentHeadingRepository headingRepository;
     @Autowired
     ContentParagraphRepository paragraphRepository;
+    @Autowired
+    UserGroupRepository userGroupRepository;
+    @Autowired
+    PresentationGroupRepository presentationGroupRepository;
 
     @ResponseBody
     @GetMapping("/{preId}")
@@ -66,6 +70,25 @@ public class SlideController {
         try {
             Slide slide = slideRepository.findById(Integer.parseInt(slideId));
             return ResponseEntity.ok(slide);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e);
+        }
+    }
+
+
+    @ResponseBody
+    @GetMapping("/check-user-slide/{slideId}")
+    ResponseEntity<?> checkUserWithSlide(Principal principal, @PathVariable Integer slideId) {
+        try {
+            Slide slide = slideRepository.findById(slideId).get();
+            Account user = accountRepository.findByUsername(principal.getName());
+            List<UserGroup> listGroupOfUser = userGroupRepository.findByUser(user);
+            PresentationGroup groupOfPresentation = presentationGroupRepository
+                    .findPresentationGroupByPresentationAndIsPresenting(slide.getPresentation(), true);
+            for (UserGroup group : listGroupOfUser)
+                if (group.getGroup().getId() == groupOfPresentation.getGroupId()) return ResponseEntity.ok(group);
+
+            return ResponseEntity.ok(false);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e);
         }
