@@ -1,6 +1,8 @@
 package com.example.webadvanced_backend.controllers;
 
+import com.example.webadvanced_backend.models.Account;
 import com.example.webadvanced_backend.models.Message;
+import com.example.webadvanced_backend.repositories.AccountRepository;
 import com.example.webadvanced_backend.repositories.MessageRepository;
 import com.example.webadvanced_backend.requestentities.SendMessageRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +22,16 @@ public class ChatController {
     SimpMessagingTemplate simpMessagingTemplate;
     @Autowired
     MessageRepository messageRepository;
+    @Autowired
+    AccountRepository accountRepository;
 
     @PostMapping(path = "/send-message/{preId}")
      public ResponseEntity<?> sendMessage(@PathVariable Integer preId, @RequestBody
             SendMessageRequest request, Principal principal){
         try{
             // 1 get message and user
-            Message message = Message.builder().username(principal.getName()).message(request.getMessage()).presentationGroupId(preId).build();
+            Account currentUser = accountRepository.findByUsername(principal.getName());
+            Message message = Message.builder().username(principal.getName()).fullName(currentUser.getFullName()).message(request.getMessage()).presentationGroupId(preId).build();
             // 2 save message into temporary memory
             messageRepository.save(message);
             // 3 send to socket

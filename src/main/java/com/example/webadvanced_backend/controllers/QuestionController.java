@@ -5,6 +5,7 @@ import com.example.webadvanced_backend.repositories.*;
 import com.example.webadvanced_backend.requestentities.CreateQuestionRequest;
 import com.example.webadvanced_backend.requestentities.DeletePresentationRequest;
 import com.example.webadvanced_backend.requestentities.EditPresentationRequest;
+import com.example.webadvanced_backend.responseentities.ResponseLoadQuestion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -40,12 +41,23 @@ public class QuestionController {
     SimpMessagingTemplate simpMessagingTemplate;
     @Autowired
     PresentationGroupRepository presentationGroupRepository;
+    @Autowired
+    UserGroupRepository userGroupRepository;
+    @Autowired
+    GroupRepository groupRepository;
 
     @GetMapping("/load-old-question/{preId}")
-    ResponseEntity<?> getQuestion(@PathVariable int preId){
+    ResponseEntity<?> getQuestion(@PathVariable int preId, Principal principal){
         try {
-            List<Question> listQuestion = questionRepository.findByPresentationGroup(presentationGroupRepository.findById(preId));
-            return ResponseEntity.ok(listQuestion);
+            PresentationGroup preSession = presentationGroupRepository.findById(preId);
+            List<Question> listQuestion = questionRepository.findByPresentationGroup(preSession);
+            Account currentUser = accountRepository.findByUsername(principal.getName());
+            GroupInfo groupInfo = groupRepository.findById((int)preSession.getGroupId());
+            UserGroup userGroup = userGroupRepository.findByUserAndGroup(currentUser,groupInfo);
+            Boolean isOwner = true;
+            if(userGroup.getRoleUserInGroup().equals("ROLE_MEMBER"))
+                isOwner = false;
+            return ResponseEntity.ok(new ResponseLoadQuestion(listQuestion,isOwner));
         }
         catch (Exception e){
             return ResponseEntity.internalServerError().body(e);

@@ -27,6 +27,17 @@ public class Message {
     @Column(name = "presentation_group_id")
     private Integer presentationGroupId;
 
+    @Column(name = "full_name")
+    private String fullName;
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
     public Integer getId() {
         return id;
     }
