@@ -2,7 +2,7 @@
 FROM openjdk:11
 
 # Copy the compiled jar file to the container
-ADD test-file.jar /app/
+ADD AdvancedWeb_Backend.jar /app/
 
 # Set the working directory
 WORKDIR /app
@@ -11,4 +11,4 @@ WORKDIR /app
 EXPOSE 8080
 
 # Run the jar file
-ENTRYPOINT ["java", "-jar", "test-file.jar"]
+ENTRYPOINT ["java", "-jar", "AdvancedWeb_Backend.jar"]
