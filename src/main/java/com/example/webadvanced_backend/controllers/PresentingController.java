@@ -63,6 +63,7 @@ public class PresentingController {
             Presentation presentation = presentationRepository.findById(request.getPresentationId());
             PresentationGroup presentationGroup = PresentationGroup.builder()
                     .groupId(request.getGroupId()).isPresenting(true).presentation(presentation).currentSlideIndex(0).build();
+            simpMessagingTemplate.convertAndSend("/topic/notification/" + request.getGroupId(), true);
             return ResponseEntity.ok(presentationGroupRepository.save(presentationGroup));
         }
         catch (Exception err){
@@ -75,6 +76,7 @@ public class PresentingController {
         try {
             PresentationGroup presentationGroup = presentationGroupRepository.findById(request.getPresentingId());
             presentationGroup.setIsPresenting(false);
+            simpMessagingTemplate.convertAndSend("/topic/notification/" + presentationGroup.getGroupId(), false);
             return ResponseEntity.ok(presentationGroupRepository.save(presentationGroup));
         }
         catch (Exception err){
