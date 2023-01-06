@@ -77,6 +77,8 @@ public class PresentingController {
             PresentationGroup presentationGroup = presentationGroupRepository.findById(request.getPresentingId());
             presentationGroup.setIsPresenting(false);
             simpMessagingTemplate.convertAndSend("/topic/notification/" + presentationGroup.getGroupId(), false);
+            simpMessagingTemplate.convertAndSend("/topic/stop-presenting/" + presentationGroup.getId(), false);
+
             return ResponseEntity.ok(presentationGroupRepository.save(presentationGroup));
         }
         catch (Exception err){
